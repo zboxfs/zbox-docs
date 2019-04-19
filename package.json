@@ -1,0 +1,13 @@
+{
+  "name": "zbox-docs",
+  "version": "0.1.0",
+  "description": "ZboxFS documents",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}
