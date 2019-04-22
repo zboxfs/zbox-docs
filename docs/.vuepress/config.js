@@ -4,6 +4,10 @@ module.exports = {
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
+  plugins: [
+    '@vuepress/active-header-links',
+    '@vuepress/back-to-top'
+  ],
   themeConfig: {
     nav: [
       { text: 'Zbox', link: 'https://zbox.io' },
@@ -13,7 +17,8 @@ module.exports = {
     sidebar: [
       ['/', 'Introduction'],
       '/getting-started',
-      '/reference'
+      '/reference',
+      '/internals'
     ]
   }
 };

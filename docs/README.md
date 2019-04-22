@@ -3,3 +3,5 @@
 ## How It Works
 
 ## Features
+
+## FAQ
