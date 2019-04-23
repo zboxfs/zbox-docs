@@ -23,6 +23,10 @@ authenticated encryption primitives [AEAD encryption](https://en.wikipedia.org/w
 
 ![Zbox Overview](../assets/overview.svg)
 
+As a module, Zbox runs within the same memory as your application. It
+encapsulates a virtual filesystem in a secure repository and provides file IO
+API to application.
+
 ## Features
 
 ## FAQ
