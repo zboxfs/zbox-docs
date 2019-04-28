@@ -6,7 +6,13 @@ module.exports = {
   ],
   plugins: [
     '@vuepress/active-header-links',
-    '@vuepress/back-to-top'
+    '@vuepress/back-to-top',
+    [
+      '@vuepress/google-analytics',
+      {
+        'ga': '' // UA-00000000-0
+      }
+    ]
   ],
   themeConfig: {
     nav: [

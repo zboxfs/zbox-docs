@@ -10,7 +10,7 @@ state-of-the-art cryptos, everything stored in Zbox is encrypted locally,
 including file contents, metadata, directories and etc. Unencrypted data never
 leaves your local memory.
 
-Apart from advanced encryption, Zbox also unifies data to same-sized blocks to
+In addition to advanced encryption, Zbox unifies data to same-sized blocks to
 eliminate metadata leakage. Nobody, except you, knows what the file contents are
 and how many files are stored. Zbox also knows nothing about your files, except
 the total bytes used.
@@ -19,12 +19,19 @@ Zbox is also a transactional file storage. Any modification on your files and
 directories are guarded by ACID transaction. Data integrity is guaranteed by
 authenticated encryption primitives [AEAD encryption](https://en.wikipedia.org/wiki/Authenticated_encryption).
 
+Zbox is not a traditional file system, it cannot be mounted to operating system
+and shared access by many processes. Only the app runs it has the exclusive
+access to Zbox.
+
+Zbox is also not like Dropbox, OneDrive and etc. It is built for developers,
+not consumers.
+
 ## How It Works
 
 ![Zbox Overview](../assets/overview.svg)
 
 As an internal module, ZboxFS runs within the same memory as your application.
-It encapsulates a virtual filesystem in a secure repository (Repo) and provides
+It encapsulates a virtual file system in a secure repository (Repo) and provides
 file IO API to application.
 
 All data stored in the repo is encrypted using user-specified key. Optionally,
@@ -35,9 +42,9 @@ through HTTPS.
 A local cache, which is also encrypted, is used to boost IO performance. It
 can use different storages too, such as memory,
 [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
-or local filesystem.
+or local files ystem.
 
-Once the encrypted data blocks are saved on the globally-distrubuted Zbox
+Once the encrypted data blocks are saved to the globally-distrubuted Zbox
 Cloud Storage, it is guaranteed to be secure, private and reliable. Nobody,
 including us, can hold the encryption key and obtain any knowledge about your
 data.
@@ -54,7 +61,6 @@ data.
   leakage
 - Content-based data chunk deduplication and file-based deduplication
 - Data compression using [LZ4](http://www.lz4.org/) in fast mode, optional
-  crypto)
 - File contents versioning
 - ACID transactional operations
 - Familiar and easy-to-use file IO API
@@ -62,7 +68,7 @@ data.
 - Cross devices, runs on desktop, tablet and mobile
 - Multiple programming language bindings, C/C++, Rust, Browser Javascript,
   Node.js and Java
-- Globally-distrubuted CDN-powered storage servers
+- Globally-distrubuted CDN-powered cloud storage
 - Built in [Rust](https://www.rust-lang.org/) :hearts: with safety and
   performance
 - Open sourced on [GitHub](https://github.com/zboxfs/zbox) with Apache-2.0
@@ -96,8 +102,8 @@ breach and privacy leakage.
 ### How Zbox secured my files?
 
 When your files are saving to Zbox, they are chunked to same-sized data blocks
-by [ZboxFS]. Those data blocks are then encrypted locally by the key only you
-know. After that, data blocks are transmitted using HTTPS and saved to Zbox
+by [ZboxFS]. Those data blocks are then encrypted locally by the user-specified
+key. After that, data blocks are transmitted using HTTPS and saved to Zbox
 Cloud Storage, a secure globally-distrubuted cloud storage.
 
 Encryption key and any unencrypted data are never leave local device memory,
