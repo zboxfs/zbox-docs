@@ -15,6 +15,7 @@ module.exports = {
     ]
   ],
   themeConfig: {
+    sidebarDepth: 2,
     nav: [
       { text: 'Zbox', link: 'https://zbox.io' },
       { text: 'Sign In', link: 'https://console.zbox.io/signin' },
@@ -23,7 +24,16 @@ module.exports = {
     sidebar: [
       ['/', 'Introduction'],
       '/getting-started',
-      '/reference',
+      {
+        title: 'API Reference',
+        path: '/api/',
+        sidebarDepth: 2,
+        children: [
+          '/api/browser',
+          '/api/nodejs',
+          '/api/rust'
+        ]
+      },
       '/internals'
     ]
   }
