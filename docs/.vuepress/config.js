@@ -15,6 +15,7 @@ module.exports = {
     ]
   ],
   themeConfig: {
+    logo: '/logo.svg',
     sidebarDepth: 2,
     nav: [
       { text: 'Zbox', link: 'https://zbox.io' },
@@ -24,6 +25,14 @@ module.exports = {
     sidebar: [
       ['/', 'Introduction'],
       '/getting-started',
+      {
+        title: 'Tutorials',
+        path: '/tutorials/',
+        sidebarDepth: 2,
+        children: [
+          '/tutorials/hello-world'
+        ]
+      },
       {
         title: 'API Reference',
         path: '/api/',
