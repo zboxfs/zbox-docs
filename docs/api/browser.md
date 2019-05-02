@@ -2,6 +2,41 @@
 
 ## Class: Zbox
 
+`Zbox` class is the entry point of ZboxFS. A typical usage pattern is
+
+1. Initialise environment using [initEnv](#initenv)
+2. Create or open a [Repo] instance using [openRepo](#openrepo)
+3. Do your works using [Repo] instance or [File] instance
+4. Close all opened [File] and [Repo] instances
+4. Call [exit](#exit) to terminate ZboxFS
+
+Example:
+
+```js
+// create Zbox instance
+var zbox = new Zbox.Zbox()
+
+// initialise environment
+await zbox.initEnv({ debug: true })
+
+// create a repo
+var repo = await zbox.openRepo({
+  uri: 'zbox://access_key@repo_id',
+  pwd: 'secret password',
+  opts: { create: true }
+})
+
+// do your works here, for example, create a file
+var file = await repo.createFile('/foo.txt')
+
+// close file and repo
+await file.close()
+await repo.close()
+
+// terminate ZboxFS
+await zbox.exit()
+```
+
 ### constructor
 
 ```js
@@ -12,8 +47,8 @@ var zbox = new Zbox.Zbox()
 
 #### zbox.initEnv(options?: Object): Promise\<void>
 
-Initialise Zbox environment. This function should be called once before any
-other functions provided by Zbox.
+Initialise Zbox environment. This method should be called once before any
+other methods provided by Zbox.
 
 `options` can have `debug: true` to turn on debug logging in console output.
 
@@ -39,7 +74,7 @@ zbox.exists('zbox://access_key@repo_id')
 
 #### zbox.openRepo(arg: Object): Promise\<Repo>
 
-Opens a [Repo](#class-repo) at URI with the password and specified options.
+Opens a [Repo] at URI with the password and specified options.
 
 Argument `arg` is:
 
@@ -127,7 +162,7 @@ This method will try to repair super block using backup. One scenario is when
 damaged. Using this method can restore the damaged super block from backup. If
 super block is all good, this method is no-op.
 
-This method must be called when repo is not opened.
+This method must be called when repo is closed.
 
 Argument `arg` is:
 
@@ -147,6 +182,30 @@ zbox.repairSuperBlock({
 })
 ```
 
+### deleteLocalCache
+
+#### zbox.deleteLocalCache(uri: string): Promise\<void>
+
+Call this method to delete ZboxFS local cache.
+
+Example:
+
+```js
+zbox.deleteLocalCache('zbox://access_key@repo_id')
+```
+
+### exit
+
+#### zbox.exit(): Promise\<void>
+
+Call this method to terminate ZboxFS.
+
+Example:
+
+```js
+zbox.exit()
+```
+
 ## Class: Repo
 
 `Repo` is an encrypted repository contains the whole file system.
@@ -154,6 +213,9 @@ zbox.repairSuperBlock({
 A `Repo` represents a secure collection which consists of files, directories and
 their associated data. It provides POSIX-like methods to manipulate the enclosed
 file system.
+
+A `Repo` instance can be obtained by [Zbox.openRepo](#openrepo) and must be
+[closed](#close) after use.
 
 ### close
 
@@ -201,7 +263,8 @@ var info = await repo.info()
 Reset password for the repo.
 
 :::warning Note
-If this method failed due to IO error, super block might be damaged. If so, use [repairSuperBlock](#repairsuperblock) to restore super block before re-open
+If this method failed due to IO error, super block might be damaged. If so,
+use [repairSuperBlock](#repairsuperblock) to restore super block before re-open
 the repo.
 :::
 
@@ -263,17 +326,17 @@ repo.isDir('/foo/bar')
 Create a file in read-write mode. This is a shortcut of
 [Repo.openFile](#openfile).
 
-This function will create a file if it does not exist, and will truncate it if
+This method will create a file if it does not exist, and will truncate it if
 it does.
 
-See the [Repo.openFile](#openfile) function for more details.
+See the [Repo.openFile](#openfile) method for more details.
 
 `path` must be an absolute path.
 
 Example:
 
 ```js
-var file = repo.createFile('/foo/bar.txt')
+var file = await repo.createFile('/foo/bar.txt')
 ```
 
 ### openFile
@@ -292,7 +355,7 @@ Argument `arg` can be either one of the below:
   Example:
 
   ```js
-  var file = repo.openFile('/foo/bar.txt')
+  var file = await repo.openFile('/foo/bar.txt')
   ```
 
 - `options`: Object
@@ -368,7 +431,7 @@ Argument `arg` can be either one of the below:
   Example:
 
   ```js
-  var file = repo.openFile({
+  var file = await repo.openFile({
     path: '/foo/bar.txt',
     opts: {
       write: true,
@@ -436,7 +499,7 @@ Return:
 Example:
 
 ```js
-var dirs = repo.readDir('/foo/bar')
+var dirs = await repo.readDir('/foo/bar')
 ```
 
 ### metadata
@@ -462,7 +525,7 @@ Return:
 Example:
 
 ```js
-var metadata = repo.metadata('/foo/bar')
+var metadata = await repo.metadata('/foo/bar')
 ```
 
 ### history
@@ -489,18 +552,17 @@ Return:
 Example:
 
 ```js
-var hist = repo.history('/foo/bar.txt')
+var hist = await repo.history('/foo/bar.txt')
 ```
 
 ### copy
 
 #### repo.copy({ from: string, to: string }): Promise\<void>
 
-Copies the content of one file to another. This function will overwrite the
+Copies the content of one file to another. This method will overwrite the
 content of `to`.
 
-If `from` and `to` both point to the same file, then this function will do
-nothing.
+If `from` and `to` both point to the same file, this method is no-op.
 
 `from` and `to` must be absolute paths to regular files.
 
@@ -582,12 +644,158 @@ repo.rename({
 
 `File` is a reference to an opened file in the repo.
 
-An instance of a `File` can be read and/or written depending on what options it
-was opened with. Files also implement [Seek](#enum-seekfrom) to alter the
-logical cursor that the file contains internally.
+An instance of a `File` can be [read](#read) and/or [written](#write) depending
+on what options it was opened with. Files also implement [Seek](#enum-seekfrom)
+to alter the logical cursor that the file contains internally.
+
+A `File` instance can be obtained by [Repo.openFile](#openfile) or
+[Repo.createFile](#createfile) and  must be [closed](#close-2) after use.
+
+#### Versioning
+
+`File` contents support up to 255 revision versions. Version is immutable once
+it is created.
+
+By default, the maximum number of versions of a File is 10, which is
+configurable by [versionLimit](#openfile). After reaching this limit, the
+oldest version will be automatically deleted after adding a new one.
+
+Version number starts from 1 and continuously increases by 1.
+
+#### Writing
+
+`File` is multi-versioned, each time updating its content will create a new
+permanent version. There are two ways of writing data to a file:
+
+- Multi-part Write
+
+  This is done by updating file using [write](#write) method. After all writing
+  operations, [finish](#finish) must be called to create a new version.
+
+  ```js
+  const buf = new Uint8Array([1, 2, 3])
+  var file = await repo.createFile('/foo.txt')
+  await file.write(buf.slice(0, 2))
+  await file.write(buf.slice(2))
+  await file.finish()   // now file content is [1, 2, 3]
+  ```
+
+- Single-part Write
+
+  This can be done by calling [writeOnce](#writeonce), which will call
+  [finish](#finish) internally to create a new version.
+
+  ```js
+  const buf = new Uint8Array([1, 2, 3])
+  var file = await repo.createFile('/foo.txt')
+  await file.writeOnce(buf.slice())  // now file content is [1, 2, 3]
+  ```
+
+#### Reading
+
+As `File` can contain multiple versions, read operation can be associated with
+different versions. By default, reading on a file is always binded to the
+latest version. To read a specific version, a [VersionReader](#versionreader),
+which supports [read](#read-2) as well, can be used.
+
+Example:
+
+```js
+// create file and write data to it
+const buf = new Uint8Array([1, 2, 3, 4, 5, 6])
+var file = await repo.createFile('/foo.txt')
+await file.writeOnce(buf.slice())
+
+// read the first 2 bytes
+await file.seek({ from: Zbox.SeekFrom.START, offset: 0 })
+var dst = await file.read(new Uint8Array(2))    // now dst is [1, 2]
+
+// create a new version, now the file content is [1, 2, 7, 8, 5, 6]
+await file.writeOnce(new Uint8Array([7, 8]))
+
+// notice that reading is on the latest version
+await file.seek({ from: Zbox.SeekFrom.CURRENT, offset: -2 })
+dst = await file.read(dst)    // now dst is [7, 8]
+
+await file.close()
+```
+
+Read multiple versions using [VersionReader](#class-versionreader).
+
+```js
+// create file and write 2 versions
+var file = await repo.createFile('/foo.txt')
+await file.writeOnce('foo')
+await file.writeOnce('bar')
+
+// get latest version number
+const currVer = await file.currVersion()
+
+// create a version reader and read latest version of content
+var vrdr = await file.versionReader(currVer)
+var content = await vrdr.readAllString()    // now content is 'foobar'
+await vrdr.close()
+
+// create another version reader and read previous version of content
+vrdr = await file.versionReader(currVer - 1)
+content = await vrdr.readAllString()    // now content is 'foo'
+await vrdr.close()
+
+await file.close()
+```
 
 ### close
+
+#### file.close(): Promise\<void>
+
+Close an opened file.
+
+Example:
+
+```js
+file.close()
+```
+
 ### read
+
+#### file.read(buf: Uint8Array): Promise\<Uint8Array>
+
+Read some bytes from file using the specified buffer, returning a buffer
+containing them.
+
+The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length. A
+nonzero ***n*** value indicates that the buffer returned has been filled in with ***n***
+bytes of data from the file. If ***n*** is 0, then it can indicate one of two
+scenarios:
+
+- This logical cursor has reached its "end of file" and will longer be able to
+  read bytes from this file.
+- The buffer specified was 0 bytes in length.
+
+This method uses zero-copy manner, that is, the specified buffer `buf` is used
+to store the bytes read from file and then returned back to application.
+
+:::warning Warning
+In order to improve performance, ZboxFs uses [transferable object] in read.
+That means the specified buffer `buf` is **not** usable after calling this
+method. If you want to keep `buf` untouched, make a copy of it before use. For
+example, `file.read(buf.slice())`.
+:::
+
+Example:
+
+```js
+var buf = new Uint8Array(3)
+var result = await file.read(buf)   // buf is not usable after this call!
+
+var buf = new Uint8Array(3)
+buf = await file.read(buf)  // This is OK, buf will contain bytes read
+
+// Or if you want buf to be untouched, copy it before use
+var buf = new Uint8Array(3)
+var result = await file.read(buf.slice())
+```
+
 ### readAll
 ### readAllString
 ### write
@@ -608,3 +816,7 @@ logical cursor that the file contains internally.
 ### seek
 
 ## Enum: SeekFrom
+
+[Repo]: #class-repo
+[File]: #class-file
+[transferable object]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#Passing_data_by_transferring_ownership_(transferable_objects)
