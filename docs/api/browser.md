@@ -2,7 +2,9 @@
 
 ## Class: Zbox
 
-`Zbox` class is the entry point of ZboxFS. A typical usage pattern is
+`Zbox` class is the entry point of ZboxFS.
+
+A typical usage pattern is:
 
 1. Initialise environment using [initEnv](#initenv)
 2. Create or open a [Repo] instance using [openRepo](#openrepo)
@@ -19,7 +21,7 @@ var zbox = new Zbox.Zbox()
 // initialise environment
 await zbox.initEnv({ debug: true })
 
-// create a repo
+// create or open a repo
 var repo = await zbox.openRepo({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password',
@@ -39,6 +41,8 @@ await zbox.exit()
 
 ### constructor
 
+Create a ZboxFS instance.
+
 ```js
 var zbox = new Zbox.Zbox()
 ```
@@ -55,7 +59,7 @@ other methods provided by Zbox.
 Example:
 
 ```js
-zbox.initEnv({ debug: true })
+await zbox.initEnv({ debug: true })
 ```
 
 ### exists
@@ -67,7 +71,7 @@ Returns whether the URI points at an existing repository.
 Example:
 
 ```js
-zbox.exists('zbox://access_key@repo_id')
+await zbox.exists('zbox://access_key@repo_id')
 ```
 
 ### openRepo
@@ -162,7 +166,9 @@ This method will try to repair super block using backup. One scenario is when
 damaged. Using this method can restore the damaged super block from backup. If
 super block is all good, this method is no-op.
 
+:::warning Warning
 This method must be called when repo is closed.
+:::
 
 Argument `arg` is:
 
@@ -176,7 +182,7 @@ Argument `arg` is:
 Example:
 
 ```js
-zbox.repairSuperBlock({
+await zbox.repairSuperBlock({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password'
 })
@@ -186,12 +192,18 @@ zbox.repairSuperBlock({
 
 #### zbox.deleteLocalCache(uri: string): Promise\<void>
 
-Call this method to delete ZboxFS local cache.
+Call this method to delete ZboxFS local cache. This method is useful when the
+local cache is messed up and you want to have a fresh update from Zbox Cloud
+Storage.
+
+:::warning Warning
+This method must be called when repo is closed.
+:::
 
 Example:
 
 ```js
-zbox.deleteLocalCache('zbox://access_key@repo_id')
+await zbox.deleteLocalCache('zbox://access_key@repo_id')
 ```
 
 ### exit
@@ -203,7 +215,7 @@ Call this method to terminate ZboxFS.
 Example:
 
 ```js
-zbox.exit()
+await zbox.exit()
 ```
 
 ## Class: Repo
@@ -215,7 +227,7 @@ their associated data. It provides POSIX-like methods to manipulate the enclosed
 file system.
 
 A `Repo` instance can be obtained by [Zbox.openRepo](#openrepo) and must be
-[closed](#close) after use.
+closed after use.
 
 ### close
 
@@ -226,7 +238,7 @@ Close an opened repo.
 Example:
 
 ```js
-repo.close()
+await repo.close()
 ```
 
 ### info
@@ -262,16 +274,16 @@ var info = await repo.info()
 
 Reset password for the repo.
 
-:::warning Note
+:::tip Tips
 If this method failed due to IO error, super block might be damaged. If so,
-use [repairSuperBlock](#repairsuperblock) to restore super block before re-open
+use [repairSuperBlock](#repairsuperblock) to restore super block before reopen
 the repo.
 :::
 
 Example:
 
 ```js
-repo.resetPassword({
+await repo.resetPassword({
   oldPwd: 'old password',
   newPwd: 'new password'
 })
@@ -288,7 +300,7 @@ Returns whether the path points at an existing entity in repo.
 Example:
 
 ```js
-repo.pathExists('/foo/bar')
+await repo.pathExists('/foo/bar')
 ```
 
 ### isFile
@@ -302,7 +314,7 @@ Returns whether the path exists in repo and is pointing at a regular file.
 Example:
 
 ```js
-repo.isFile('/foo/bar.txt')
+await repo.isFile('/foo/bar.txt')
 ```
 
 ### isDir
@@ -316,7 +328,7 @@ Returns whether the path exists in repo and is pointing at a directory.
 Example:
 
 ```js
-repo.isDir('/foo/bar')
+await repo.isDir('/foo/bar')
 ```
 
 ### createFile
@@ -329,7 +341,7 @@ Create a file in read-write mode. This is a shortcut of
 This method will create a file if it does not exist, and will truncate it if
 it does.
 
-See the [Repo.openFile](#openfile) method for more details.
+See [Repo.openFile](#openfile) method for more details.
 
 `path` must be an absolute path.
 
@@ -338,6 +350,10 @@ Example:
 ```js
 var file = await repo.createFile('/foo/bar.txt')
 ```
+
+See Also:
+
+[openFile](#openfile)
 
 ### openFile
 
@@ -378,7 +394,7 @@ Argument `arg` can be either one of the below:
   }
   ```
 
-  The `opts` contains:
+  The `opts` options:
 
   - `read`: boolean
 
@@ -451,7 +467,7 @@ Creates a new, empty directory at the specified path.
 Example:
 
 ```js
-repo.createDir('/foo')
+await repo.createDir('/foo')
 ```
 
 ### createDirAll
@@ -466,7 +482,7 @@ missing.
 Example:
 
 ```js
-repo.createDirAll('/foo/bar/baz')
+await repo.createDirAll('/foo/bar/baz')
 ```
 
 ### readDir
@@ -506,7 +522,7 @@ var dirs = await repo.readDir('/foo/bar')
 
 #### repo.metadata(path: string): Promise\<Object>
 
-Get the information about a file or directory at specified path.
+Get the metadata about a file or directory at specified path.
 
 `path` must be an absolute path.
 
@@ -532,7 +548,7 @@ var metadata = await repo.metadata('/foo/bar')
 
 #### repo.history(path: string): Promise\<Array\<Object>>
 
-Return a list of history versions of a regular file.
+Return a list of history versions of a regular file at specified path.
 
 `path` must be an absolute path.
 
@@ -541,8 +557,8 @@ Return:
 ```ts
 [
   {
-    num: number,        // version number
-    contentLen: number, // Content length of the version, in bytes
+    num: number,        // Version number
+    contentLen: number, // Content length of this version, in bytes
     createdAt: number   // Version creation time, Unix timestamp
   }
   ...
@@ -554,6 +570,10 @@ Example:
 ```js
 var hist = await repo.history('/foo/bar.txt')
 ```
+
+See Also:
+
+[VersionReader](#class-versionreader), [File.history](#history-2)
 
 ### copy
 
@@ -569,7 +589,7 @@ If `from` and `to` both point to the same file, this method is no-op.
 Example:
 
 ```js
-repo.copy({
+await repo.copy({
   from: '/foo/bar.txt',
   to: '/foo/baz.txt'
 })
@@ -586,8 +606,12 @@ Removes a regular file from the repo.
 Example:
 
 ```js
-repo.removeFile('/foo/bar.txt')
+await repo.removeFile('/foo/bar.txt')
 ```
+
+See Also:
+
+[removeDir](#removedir), [removeDirAll](#removedirall)
 
 ### removeDir
 
@@ -604,8 +628,12 @@ Remove an existing empty directory.
 Example:
 
 ```js
-repo.removeDir('/foo/bar')
+await repo.removeDir('/foo/bar')
 ```
+
+See Also:
+
+[removeFile](#removefile), [removeDirAll](#removedirall)
 
 ### removeDirAll
 
@@ -619,8 +647,12 @@ carefully!
 Example:
 
 ```js
-repo.removeDirAll('/foo')
+await repo.removeDirAll('/foo')
 ```
+
+See Also:
+
+[removeFile](#removefile), [removeDir](#removedir)
 
 ### rename
 
@@ -634,7 +666,7 @@ already exists.
 Example:
 
 ```js
-repo.rename({
+await repo.rename({
   from: '/foo/bar.txt',
   to: '/foo/baz.txt'
 })
@@ -649,16 +681,19 @@ on what options it was opened with. Files also implement [Seek](#enum-seekfrom)
 to alter the logical cursor that the file contains internally.
 
 A `File` instance can be obtained by [Repo.openFile](#openfile) or
-[Repo.createFile](#createfile) and  must be [closed](#close-2) after use.
+[Repo.createFile](#createfile) and  must be closed after use.
 
 #### Versioning
 
 `File` contents support up to 255 revision versions. Version is immutable once
 it is created.
 
-By default, the maximum number of versions of a File is 10, which is
-configurable by [versionLimit](#openfile). After reaching this limit, the
-oldest version will be automatically deleted after adding a new one.
+By default, the maximum number of versions of a file is 10, which is
+configurable by `versionLimit` option on both [Repo](#openrepo) and
+[File](#openfile) level. File level option takes precedence.
+
+After reaching this limit, the oldest version will be automatically deleted
+after adding a new one.
 
 Version number starts from 1 and continuously increases by 1.
 
@@ -667,10 +702,11 @@ Version number starts from 1 and continuously increases by 1.
 `File` is multi-versioned, each time updating its content will create a new
 permanent version. There are two ways of writing data to a file:
 
-- Multi-part Write
+- **Multi-part Write**
 
-  This is done by updating file using [write](#write) method. After all writing
-  operations, [finish](#finish) must be called to create a new version.
+  This is done by updating file using [write](#write) method multiple times.
+  After all writing operations, [finish](#finish) must be called to create a
+  new version.
 
   ```js
   const buf = new Uint8Array([1, 2, 3])
@@ -680,7 +716,7 @@ permanent version. There are two ways of writing data to a file:
   await file.finish()   // now file content is [1, 2, 3]
   ```
 
-- Single-part Write
+- **Single-part Write**
 
   This can be done by calling [writeOnce](#writeonce), which will call
   [finish](#finish) internally to create a new version.
@@ -695,13 +731,14 @@ permanent version. There are two ways of writing data to a file:
 
 As `File` can contain multiple versions, read operation can be associated with
 different versions. By default, reading on a file is always binded to the
-latest version. To read a specific version, a [VersionReader](#versionreader),
-which supports [read](#read-2) as well, can be used.
+latest version. To read a specific version, a
+[VersionReader](#class-versionreader), which supports [read](#read-2) as well,
+can be used.
 
 Example:
 
 ```js
-// create file and write data to it
+// create a file and write data to it
 const buf = new Uint8Array([1, 2, 3, 4, 5, 6])
 var file = await repo.createFile('/foo.txt')
 await file.writeOnce(buf.slice())
@@ -723,7 +760,7 @@ await file.close()
 Read multiple versions using [VersionReader](#class-versionreader).
 
 ```js
-// create file and write 2 versions
+// create a file and write 2 versions
 var file = await repo.createFile('/foo.txt')
 await file.writeOnce('foo')
 await file.writeOnce('bar')
@@ -753,7 +790,7 @@ Close an opened file.
 Example:
 
 ```js
-file.close()
+await file.close()
 ```
 
 ### read
@@ -763,22 +800,19 @@ file.close()
 Read some bytes from file using the specified buffer, returning a buffer
 containing them.
 
-The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length. A
-nonzero ***n*** value indicates that the buffer returned has been filled in with ***n***
-bytes of data from the file. If ***n*** is 0, then it can indicate one of two
-scenarios:
+The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n*** is 0, then it can indicate one of two scenarios:
 
-- This logical cursor has reached its "end of file" and will longer be able to
-  read bytes from this file.
+- This logical cursor has reached its "end of file" and will no longer be able
+  to read bytes from this file.
 - The buffer specified was 0 bytes in length.
 
 This method uses zero-copy manner, that is, the specified buffer `buf` is used
-to store the bytes read from file and then returned back to application.
+for both input and output.
 
 :::warning Warning
-In order to improve performance, ZboxFs uses [transferable object] in read.
-That means the specified buffer `buf` is **not** usable after calling this
-method. If you want to keep `buf` untouched, make a copy of it before use. For
+In order to improve performance, ZboxFS uses [transferable object] in read.
+That means the provided buffer `buf` is **not** usable after calling this method.
+If you want to keep `buf` untouched, make a copy of it before use. For
 example, `file.read(buf.slice())`.
 :::
 
@@ -786,36 +820,467 @@ Example:
 
 ```js
 var buf = new Uint8Array(3)
-var result = await file.read(buf)   // buf is not usable after this call!
+var output = await file.read(buf)   // buf is not usable after this call!
 
 var buf = new Uint8Array(3)
 buf = await file.read(buf)  // This is OK, buf will contain bytes read
 
 // Or if you want buf to be untouched, copy it before use
 var buf = new Uint8Array(3)
-var result = await file.read(buf.slice())
+var output = await file.read(buf.slice())
 ```
 
+See Also:
+
+[readAll](#readall), [readAllString](#readallstring)
+
 ### readAll
+
+#### file.readAll(): Promise\<Uint8Array>
+
+Read all bytes until end of the file, placing them into the returned buffer.
+
+Example:
+
+```js
+var buf = await file.readAll()
+```
+
+See Also:
+
+[read](#read), [readAllString](#readallstring)
+
 ### readAllString
+
+#### file.readAllString(): Promise\<string>
+
+Read all bytes as a string until end of the file.
+
+Example:
+
+```js
+var str = await file.readAllString()
+```
+
+See Also:
+
+[read](#read), [readAll](#readall)
+
 ### write
+
+#### file.write(buf: Uint8Array | string): Promise\<number>
+
+Write a buffer into this file, returning how many bytes were written.
+
+This method will attempt to write the entire contents of `buf`. The returned  ***n***
+is guaranteed that 0 <= ***n*** <= buf.length. A return value of 0 typically means
+that the file is no longer able to accept bytes, or that the buffer provided is
+empty.
+
+After all `write` calls are completed, [finish](#finish) must be called to
+make a version.
+
+This method uses zero-copy manner. That is, the specified buffer `buf`, if it
+is an Uint8Array, is used for both input and output.
+
+:::warning Warning
+In order to improve performance, ZboxFS uses [transferable object] in write.
+That means the provided buffer `buf`, if it is an Uint8Array, is **not** usable
+after calling this method. If you want to keep `buf` untouched, make a copy of
+it before use. For example, `file.write(buf.slice())`.
+:::
+
+Example:
+
+```js
+var buf = new Uint8Array([1, 2, 3])
+var written = await file.write(buf)   // buf is not usable after this call!
+
+// Or if you want buf to be untouched, copy it before use
+var buf = new Uint8Array([1, 2, 3])
+var written = await file.write(buf.slice())
+
+// You can write string to file as well
+var written = await file.write('foo bar')
+
+// Don't forget to call finish() to make a version
+await file.finish()
+```
+
+See Also:
+
+[finish](#finish), [writeOnce](#writeonce)
+
 ### finish
+
+#### file.finish(): Promise\<void>
+
+Complete multi-part write to file and create a new version.
+
+Example:
+
+```js
+await file.finish()
+```
+
+See Also:
+
+[write](#write), [writeOnce](#writeonce)
+
 ### writeOnce
+
+#### file.writeOnce(buf: Uint8Array | string): Promise\<void>
+
+Single-part write to file and create a new version.
+
+This method provides a convenient way of combining [write](#write) and
+[finish](#finish).
+
+This method uses zero-copy manner. That is, the specified buffer `buf`, if it
+is an Uint8Array, is used for both input and output.
+
+:::warning Warning
+In order to improve performance, ZboxFS uses [transferable object] in write.
+That means the provided buffer `buf`, if it is an Uint8Array, is **not** usable
+after calling this method. If you want to keep `buf` untouched, make a copy of
+it before use. For example, `file.write(buf.slice())`.
+:::
+
+Example:
+
+```js
+var buf = new Uint8Array([1, 2, 3])
+await file.writeOnce(buf)   // buf is not usable after this call!
+
+// Or if you want buf to be untouched, copy it before use
+var buf = new Uint8Array([1, 2, 3])
+await file.writeOnce(buf.slice())
+
+// You can write string to file as well
+await file.writeOnce('foo bar')
+
+// No need to call finish() afterwards
+```
+
+See Also:
+
+[write](#write), [finish](#finish)
+
 ### seek
+
+#### file.seek({ from: SeekFrom, offset: number }): Promise\<number>
+
+Seek to an offset, relative to [from](#enum-seekfrom) in bytes, in this file.
+
+This method returns the new position from the start of the content. That
+position can be used later with [SeekFrom.START](#enum-seekfrom).
+
+A seek beyond the end of the file is allowed. In this case, subsequent write
+will extend the file and have all of the intermediate data filled in with 0s.
+
+:::tip Tips
+The `offset` can also be an negative integer, which means seek backwards in the
+content. But be careful don't seek before byte 0.
+:::
+
+Example:
+
+```js
+var pos = await file.seek({ from: Zbox.SeekFrom.START, offset: 42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.CURRENT, offset: 42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.END, offset: -42 })
+```
+
+See Also:
+
+[SeekFrom](#enum-seekfrom)
+
 ### setLen
+
+#### file.setLen(size: number): Promise\<void>
+
+Truncates or extends the underlying file, create a new version of content which
+size to become `size`.
+
+If the `size` is less than the current content size, then the new content will
+be shrunk. If it is greater than the current content size, then the content
+will be extended to `size` and have all of the intermediate data filled in with
+0s.
+
+Example:
+
+```js
+await file.setLen(42)
+```
+
 ### currVersion
+
+#### file.currVersion(): Promise\<number>
+
+Returns the current content version number.
+
+Example:
+
+```js
+var versionNum = await file.currVersion()
+```
+
 ### metadata
+
+#### file.metadata(): Promise\<Object>
+
+Queries metadata about the file.
+
+Return:
+
+```ts
+{
+  fileType: string,     // File type string, is always 'File'
+  contentLen: number,   // Content length of current version, in bytes
+  currVersion: number,  // Current version number
+  createdAt: number,    // File creation time, Unix timestamp
+  modifiedAt: number    // File modification time, Unix timestamp
+}
+```
+
+Example:
+
+```js
+var metadata = await file.metadata()
+```
+
 ### history
+
+#### file.history(): Promise\<Array\<Object>>
+
+Return a list of history versions of the file.
+
+Return:
+
+```ts
+[
+  {
+    num: number,        // Version number
+    contentLen: number, // Content length of this version, in bytes
+    createdAt: number   // Version creation time, Unix timestamp
+  }
+  ...
+]
+```
+
+Example:
+
+```js
+var hist = await file.history()
+```
+
+See Also:
+
+[VersionReader](#class-versionreader), [Repo.history](#history)
+
 ### versionReader
 
+#### file.versionReader(version: number): Promise\<VersionReader>
+
+Get a [version reader](#class-versionreader) of the specified version.
+
+To get the version number, first call [history](#history-2) to get the list of
+all versions and then choose the version number from it.
+
+Example:
+
+```js
+// Get file history versions
+var hist = await file.history()
+
+// Suppose the history version list is:
+// [
+//   { num: 42, contentLen: 123, createdAt: 1540376682 },
+//   { num: 43, contentLen: 456, createdAt: 1540376683 }
+// ]
+// then we can choose version 42 to read from
+var versionReader = await file.versionReader(42)
+```
+
+See Also:
+
+[VersionReader](#class-versionreader), [File.history](#history-2)
+
 ## Class: VersionReader
+
+A reader for a specific vesion of file content.
+
+This reader can be obtained by [File.versionReader](#versionreader) method and
+must be closed after use.
+
+A typical usage pattern is:
+
+1. Get file history versions using [File.history](#history-2)
+2. Get version reader for a sepcfic version number [File.versionReader](#versionreader)
+3. Read content using [read](#read-2), [readAll](#readall-2) or
+   [readAllString](#readallstring-2)
+4. Close the version reader using [close](#close-3)
+
+Example:
+
+```js
+// Get file history versions
+var hist = await file.history()
+
+// Suppose the history version list is:
+// [
+//   { num: 42, contentLen: 123, createdAt: 1540376682 },
+//   { num: 43, contentLen: 456, createdAt: 1540376683 }
+// ]
+// then we can choose version 42 to read from
+var versionReader = await file.versionReader(42)
+
+// Read all content of this version
+var content = await versionReader.readAll()
+
+// Close the version reader
+await versionReader.close()
+```
+
 ### close
+
+#### versionReader.close(): Promise\<void>
+
+Close an opened version reader.
+
+Example:
+
+```js
+versionReader.close()
+```
+
 ### read
+
+#### versionReader.read(buf: Uint8Array): Promise\<Uint8Array>
+
+Read some bytes from the reader using the specified buffer, returning a buffer
+containing them.
+
+This method has same semantics as [File.read](#read).
+
+The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n*** is 0, then it can indicate one of two scenarios:
+
+- This logical cursor has reached its "end of file" and will no longer be able
+  to read bytes from this reader.
+- The buffer specified was 0 bytes in length.
+
+This method uses zero-copy manner, that is, the specified buffer `buf` is used
+for both input and output.
+
+:::warning Warning
+In order to improve performance, ZboxFS uses [transferable object] in read.
+That means the provided buffer `buf` is **not** usable after calling this method.
+If you want to keep `buf` untouched, make a copy of it before use. For
+example, `versionReader.read(buf.slice())`.
+:::
+
+Example:
+
+```js
+var buf = new Uint8Array(3)
+var output = await versionReader.read(buf) // buf is not usable after this call!
+
+var buf = new Uint8Array(3)
+buf = await versionReader.read(buf)  // This is OK, buf will contain bytes read
+
+// Or if you want buf to be untouched, copy it before use
+var buf = new Uint8Array(3)
+var output = await versionReader.read(buf.slice())
+```
+
+See Also:
+
+[readAll](#readall-2), [readAllString](#readallstring-2)
+
 ### readAll
+
+#### versionReader.readAll(): Promise\<Uint8Array>
+
+Read all bytes until end of the reader, placing them into the returned buffer.
+
+Example:
+
+```js
+var buf = await versionReader.readAll()
+```
+
+See Also:
+
+[read](#read-2), [readAllString](#readallstring-2)
+
 ### readAllString
+
+#### versionReader.readAllString(): Promise\<string>
+
+Read all bytes as a string until end of the reader.
+
+Example:
+
+```js
+var str = await versionReader.readAllString()
+```
+
+See Also:
+
+[read](#read-2), [readAll](#readall-2)
+
 ### seek
 
+#### versionReader.seek({ from: SeekFrom, offset: number }): Promise\<number>
+
+Seek to an offset, relative to [from](#enum-seekfrom) in bytes, in this reader.
+
+This method returns the new position from the start of the content. That
+position can be used later with [SeekFrom.START](#enum-seekfrom).
+
+A seek beyond the end of the reader is allowed, but no meaningful use because
+the reader can only read from content.
+
+:::tip Tips
+The `offset` can also be an negative integer, which means seek backwards in the
+content. But be careful don't seek before byte 0.
+:::
+
+Example:
+
+```js
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.START, offset: 42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.CURRENT, offset: 42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.END, offset: -42 })
+```
+
+See Also:
+
+[SeekFrom](#enum-seekfrom)
+
 ## Enum: SeekFrom
+
+Enumeration of possible methods to seek within a file or version reader.
+
+It is used by the [File.seek](#seek) and [VersionReader.seek](#seek-2) methods.
+
+Enumerations:
+
+- START
+
+  Set the offset to the number of bytes from start of object.
+
+- END
+
+  Set the offset to the size of object plus the specified number of bytes.
+
+- CURRENT
+
+  Set the offset to the current position plus the specified number of bytes.
+
+See Also:
+
+[File.seek](#seek), [VersionReader.seek](#seek-2)
 
 [Repo]: #class-repo
 [File]: #class-file
