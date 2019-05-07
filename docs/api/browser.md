@@ -1,5 +1,71 @@
 # Browser
 
+## URI
+
+Similar to HTTP URL, Zbox `URI` is a string that identifies a particular [Repo].
+Its syntax is as below:
+
+```
+zbox://access_key@repo_id[?option=value]
+```
+
+`access_key` is a 24-character string token for API access authtication. It
+is not the key to encrypt/decrypt repo, but still need to be kept safe.
+
+`repo_id` is an unique 14-character string identifier of a [Repo].
+
+To get a `repo_id` and `access_key`, sign up at [Zbox.io] and create a repo.
+
+URI can also include a list of options as below, which may have different
+values based on language binding.
+
+- `cache_type`
+
+  Specify local cache storage type, acceptable values are:
+
+  1. `mem`: Memory based local cache. This is the default value.
+  2. `file`: OS file based local cache. Must also set `base` directory (see
+      below) when this is specified. Not available in browser.
+  3. `browser`: [IndexedDB] based local cache. Only available in browser.
+
+- `cache_size`
+
+  Specify the maximum size of local cache, in MB. Default is one megabyte.
+
+- `base`
+
+  Specify the OS directory of `file` local cache, can be relative or absolute
+  path. Only valid when `cache_type` is `file`.
+
+Some URI Examples:
+
+```js
+// URI with 1MB memory based local cache
+var uri = 'zbox://access_key@repo_id'
+
+// URI with 3MB memory based local cache
+var uri = 'zbox://access_key@repo_id?cache_type=mem&cache_size=3mb'
+
+// URI with 1MB file based local cache at './local_cache' directory
+var uri = 'zbox://access_key@repo_id?cache_type=file&base=./local_cache'
+
+// URI with 3MB file based local cache at './local_cache' directory
+var uri = 'zbox://access_key@repo_id?cache_type=file&cache_size=3mb&base=./local_cache'
+
+// URI with 1MB browser based local cache, only valid in browser
+var uri = 'zbox://access_key@repo_id?cache_type=browser'
+
+// URI with 3MB browser based local cache, only valid in browser
+var uri = 'zbox://access_key@repo_id?cache_type=browser&cache_size=3mb'
+```
+
+:::tip Tips
+Do not specify too large `cache_size` value for `browser` local cache, because
+browsers have different maximum size limits for [IndexedDB] and also the local
+cache is fully loaded in browser's memory when repo is opened. Set it below 5MB
+for safe and always test different sizes.
+:::
+
 ## Class: Zbox
 
 `Zbox` class is the entry point of ZboxFS.
@@ -8,14 +74,14 @@ A typical usage pattern is:
 
 1. Initialise environment using [initEnv](#initenv)
 2. Create or open a [Repo] instance using [openRepo](#openrepo)
-3. Do your works using [Repo] instance or [File] instance
+3. Do your works using [Repo] or [File] instance
 4. Close all opened [File] and [Repo] instances
 4. Call [exit](#exit) to terminate ZboxFS
 
 Example:
 
 ```js
-// create Zbox instance
+// create ZboxFS instance
 var zbox = new Zbox.Zbox()
 
 // initialise environment
@@ -44,15 +110,16 @@ await zbox.exit()
 Create a ZboxFS instance.
 
 ```js
-var zbox = new Zbox.Zbox()
+var zbox = new Zbox()
 ```
 
 ### initEnv
 
 #### zbox.initEnv(options?: Object): Promise\<void>
 
-Initialise Zbox environment. This method should be called once before any
-other methods provided by Zbox.
+Initialise ZboxFS environment.
+
+This method should be called once before any other methods provided by Zbox.
 
 `options` can have `debug: true` to turn on debug logging in console output.
 
@@ -66,7 +133,7 @@ await zbox.initEnv({ debug: true })
 
 #### zbox.exists(uri: string): Promise\<boolean>
 
-Returns whether the URI points at an existing repository.
+Returns whether the [URI] points at an existing repository.
 
 Example:
 
@@ -76,28 +143,49 @@ await zbox.exists('zbox://access_key@repo_id')
 
 ### openRepo
 
-#### zbox.openRepo(arg: Object): Promise\<Repo>
+#### zbox.openRepo({ uri: string, pwd: string, opts?: Object }): Promise\<Repo>
 
-Opens a [Repo] at URI with the password and specified options.
+Opens a [Repo] at [URI] with the password and specified options.
 
-Argument `arg` is:
+The `opts` options are:
 
 ```ts
 {
-  uri: string,  // URI points at the repo
-  pwd: string,  // Password to decrypt the repo
-  opts?: {      // Options to open the repo
-    create?: boolean,       // default: false
-    createNew?: boolean,    // default: false
-    compress?: boolean,     // default: false
-    versionLimit?: number,  // default: 10
-    dedupChunk?: boolean,   // default: true
-    readOnly?: boolean      // default: false
-  }
+  opsLimit?: OpsLimit,    // default: OpsLimit.Interactive
+  memLimit?: MemLimit,    // default: MemLimit.Interactive
+  cipher?: Cipher,        // default: (see below)
+  create?: boolean,       // default: false
+  createNew?: boolean,    // default: false
+  compress?: boolean,     // default: false
+  versionLimit?: number,  // default: 10
+  dedupChunk?: boolean,   // default: true
+  readOnly?: boolean      // default: false
 }
 ```
 
-In the `opts` options:
+- `opsLimit`
+
+  Sets the password hash operation limit, one value of
+  [OpsLimit](#enum-opslimit). This option is only used when creating repo.
+
+  This option is not available in browser.
+
+- `memLimit`
+
+  Sets the password hash memory limit, one value of [MemLimit](#enum-memlimit).
+  This option is only used when creating repo.
+
+  This option is not available in browser.
+
+- `cipher`
+
+  Sets the crypto cipher encrypts the repository, one value of
+  [Cipher](#enum-cipher). This option is only used when creating repo.
+
+  [Cipher.Aes](#enum-cipher) is the default if CPU supports AES-NI instructions,
+  otherwise it will fall back to [Cipher.Xchacha](#enum-cipher).
+
+  This option is not available in browser.
 
 - `create`
 
@@ -142,15 +230,44 @@ In the `opts` options:
 
   This option cannot be true with either `create` or `createNew` is true.
 
+:::tip Notes on crypto options
+When opening a repo, the three crypto options `opsLimit`, `memLimit` and
+`cipher` must be exactly same as the specified values when creating the repo.
+
+Due to WebAssembly restriction, those 3 options are not available in browser.
+They are defaulted to below values in browser:
+
+- opsLmit: OpsLimit.Interactive
+- memLmit: MemLimit.Interactive
+- cipher: Cipher.Xchacha
+
+So if a repo is supposed to be opened in browser, use above values when
+creating it.
+:::
+
 Example:
 
 ```js
+// Create or open a repo with compression enabled
 var repo = await zbox.openRepo({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password',
   opts: {
     create: true,
-    compress: false
+    compress: true
+  }
+})
+
+// Create or open a repo with alternative crypto settings
+// Note: this cannot run in browser.
+var repo = await zbox.openRepo({
+  uri: 'zbox://access_key@repo_id',
+  pwd: 'secret password',
+  opts: {
+    create: true,
+    opsLimit: zbox.OpsLimit.Moderate,
+    memLimit: zbox.MemLimit.Moderate,
+    cipher: zbox.Cipher.Aes
   }
 })
 ```
@@ -192,9 +309,12 @@ await zbox.repairSuperBlock({
 
 #### zbox.deleteLocalCache(uri: string): Promise\<void>
 
-Call this method to delete ZboxFS local cache. This method is useful when the
-local cache is messed up and you want to have a fresh update from Zbox Cloud
-Storage.
+Call this method to delete ZboxFS local cache in browser. This method is useful
+when the local cache is messed up and you want to have a fresh update from Zbox
+Cloud Storage.
+
+This method is only available in browser. For OS file based local cache, you
+can directly delete the whole local cache directory.
 
 :::warning Warning
 This method must be called when repo is closed.
@@ -744,14 +864,14 @@ var file = await repo.createFile('/foo.txt')
 await file.writeOnce(buf.slice())
 
 // read the first 2 bytes
-await file.seek({ from: Zbox.SeekFrom.START, offset: 0 })
+await file.seek({ from: Zbox.SeekFrom.Start, offset: 0 })
 var dst = await file.read(new Uint8Array(2))    // now dst is [1, 2]
 
 // create a new version, now the file content is [1, 2, 7, 8, 5, 6]
 await file.writeOnce(new Uint8Array([7, 8]))
 
 // notice that reading is on the latest version
-await file.seek({ from: Zbox.SeekFrom.CURRENT, offset: -2 })
+await file.seek({ from: Zbox.SeekFrom.Current, offset: -2 })
 dst = await file.read(dst)    // now dst is [7, 8]
 
 await file.close()
@@ -797,10 +917,11 @@ await file.close()
 
 #### file.read(buf: Uint8Array): Promise\<Uint8Array>
 
-Read some bytes from file using the specified buffer, returning a buffer
+Read some bytes from file using the specified buffer, returning the buffer
 containing them.
 
-The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n*** is 0, then it can indicate one of two scenarios:
+The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n***
+is 0, then it can indicate one of two scenarios:
 
 - This logical cursor has reached its "end of file" and will no longer be able
   to read bytes from this file.
@@ -881,7 +1002,7 @@ After all `write` calls are completed, [finish](#finish) must be called to
 make a version.
 
 This method uses zero-copy manner. That is, the specified buffer `buf`, if it
-is an Uint8Array, is used for both input and output.
+is an Uint8Array, is transferred ownership during write instead of copy.
 
 :::warning Warning
 In order to improve performance, ZboxFS uses [transferable object] in write.
@@ -937,7 +1058,7 @@ This method provides a convenient way of combining [write](#write) and
 [finish](#finish).
 
 This method uses zero-copy manner. That is, the specified buffer `buf`, if it
-is an Uint8Array, is used for both input and output.
+is an Uint8Array, is transferred ownership during write instead of copy.
 
 :::warning Warning
 In order to improve performance, ZboxFS uses [transferable object] in write.
@@ -973,7 +1094,7 @@ See Also:
 Seek to an offset, relative to [from](#enum-seekfrom) in bytes, in this file.
 
 This method returns the new position from the start of the content. That
-position can be used later with [SeekFrom.START](#enum-seekfrom).
+position can be used later with [SeekFrom.Start](#enum-seekfrom).
 
 A seek beyond the end of the file is allowed. In this case, subsequent write
 will extend the file and have all of the intermediate data filled in with 0s.
@@ -986,9 +1107,9 @@ content. But be careful don't seek before byte 0.
 Example:
 
 ```js
-var pos = await file.seek({ from: Zbox.SeekFrom.START, offset: 42 })
-var pos = await file.seek({ from: Zbox.SeekFrom.CURRENT, offset: 42 })
-var pos = await file.seek({ from: Zbox.SeekFrom.END, offset: -42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.End, offset: -42 })
 ```
 
 See Also:
@@ -1116,7 +1237,8 @@ must be closed after use.
 A typical usage pattern is:
 
 1. Get file history versions using [File.history](#history-2)
-2. Get version reader for a sepcfic version number [File.versionReader](#versionreader)
+2. Get version reader for a sepcfic version number
+   [File.versionReader](#versionreader)
 3. Read content using [read](#read-2), [readAll](#readall-2) or
    [readAllString](#readallstring-2)
 4. Close the version reader using [close](#close-3)
@@ -1163,7 +1285,8 @@ containing them.
 
 This method has same semantics as [File.read](#read).
 
-The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n*** is 0, then it can indicate one of two scenarios:
+The length ***n*** of returned buffer is guaranteed that 0 <= ***n*** <= buf.length.  If ***n***
+is 0, then it can indicate one of two scenarios:
 
 - This logical cursor has reached its "end of file" and will no longer be able
   to read bytes from this reader.
@@ -1236,7 +1359,7 @@ See Also:
 Seek to an offset, relative to [from](#enum-seekfrom) in bytes, in this reader.
 
 This method returns the new position from the start of the content. That
-position can be used later with [SeekFrom.START](#enum-seekfrom).
+position can be used later with [SeekFrom.Start](#enum-seekfrom).
 
 A seek beyond the end of the reader is allowed, but no meaningful use because
 the reader can only read from content.
@@ -1249,14 +1372,118 @@ content. But be careful don't seek before byte 0.
 Example:
 
 ```js
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.START, offset: 42 })
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.CURRENT, offset: 42 })
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.END, offset: -42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.End, offset: -42 })
 ```
 
 See Also:
 
 [SeekFrom](#enum-seekfrom)
+
+## Enum: OpsLimit
+
+Password hash operation limit.
+
+It represents a maximum amount of computations to perform. Higher level
+will require more CPU cycles to compute. It is used with
+[MemLimit](#enum-memlimit).
+
+For interactive, online operations, `OpsLimit.Interactive` and
+`MemLimit.Interactive` provide base line for these two parameters. This
+requires 64 MB of dedicated RAM. Higher values may improve security.
+
+Alternatively, `OpsLimit.Moderate` and `MemLimit.Moderate` can be used.
+This requires 256 MB of dedicated RAM, and takes about 0.7 seconds on a
+2.8 Ghz Core i7 CPU.
+
+For highly sensitive data and non-interactive operations,
+`OpsLimit.Sensitive` and `MemLimit.Sensitive` can be used. With these
+parameters, deriving a key takes about 3.5 seconds on a 2.8 Ghz Core i7 CPU
+and requires 1024 MB of dedicated RAM.
+
+See <https://download.libsodium.org/doc/password_hashing/the_argon2i_function>
+for more details.
+
+This enum is not available in browser.
+
+Enumerations:
+
+- Interactive
+
+- Moderate
+
+- Sensitive
+
+See Also:
+
+[MemLimit](#enum-memlimit), [openRepo](#openrepo)
+
+## Enum: MemLimit
+
+Password hash memory limit.
+
+It represents a maximum amount of memory required to perform password hashing.
+It is used with [OpsLimit](#enum-opslimit).
+
+For interactive, online operations, `OpsLimit.Interactive` and
+`MemLimit.Interactive` provide base line for these two parameters. This
+requires 64 MB of dedicated RAM. Higher values may improve security.
+
+Alternatively, `OpsLimit.Moderate` and `MemLimit.Moderate` can be used.
+This requires 256 MB of dedicated RAM, and takes about 0.7 seconds on a
+2.8 Ghz Core i7 CPU.
+
+For highly sensitive data and non-interactive operations,
+`OpsLimit.Sensitive` and `MemLimit.Sensitive` can be used. With these
+parameters, deriving a key takes about 3.5 seconds on a 2.8 Ghz Core i7 CPU
+and requires 1024 MB of dedicated RAM.
+
+See <https://download.libsodium.org/doc/password_hashing/the_argon2i_function>
+for more details.
+
+This enum is not available in browser.
+
+Enumerations:
+
+- Interactive
+
+  64MB memory
+
+- Moderate
+
+  256MB memory
+
+- Sensitive
+
+  1024MB memory
+
+See Also:
+
+[OpsLimit](#enum-opslimit), [openRepo](#openrepo)
+
+## Enum: Cipher
+
+Crypto cipher primitivies.
+
+See <https://download.libsodium.org/doc/secret-key_cryptography/aead> for more
+details.
+
+This enum is not available in browser.
+
+Enumerations:
+
+- Xchacha
+
+  XChaCha20-Poly1305
+
+- Aes
+
+  AES256-GCM, hardware only
+
+See Also:
+
+[openRepo](#openrepo)
 
 ## Enum: SeekFrom
 
@@ -1266,15 +1493,15 @@ It is used by the [File.seek](#seek) and [VersionReader.seek](#seek-2) methods.
 
 Enumerations:
 
-- START
+- Start
 
   Set the offset to the number of bytes from start of object.
 
-- END
+- End
 
   Set the offset to the size of object plus the specified number of bytes.
 
-- CURRENT
+- Current
 
   Set the offset to the current position plus the specified number of bytes.
 
@@ -1282,6 +1509,9 @@ See Also:
 
 [File.seek](#seek), [VersionReader.seek](#seek-2)
 
+[URI]: #uri
 [Repo]: #class-repo
 [File]: #class-file
+[Zbox.io]: https://zbox.io
+[IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 [transferable object]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#Passing_data_by_transferring_ownership_(transferable_objects)
