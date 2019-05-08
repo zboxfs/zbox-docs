@@ -265,9 +265,9 @@ var repo = await zbox.openRepo({
   pwd: 'secret password',
   opts: {
     create: true,
-    opsLimit: zbox.OpsLimit.Moderate,
-    memLimit: zbox.MemLimit.Moderate,
-    cipher: zbox.Cipher.Aes
+    opsLimit: Zbox.OpsLimit.Moderate,
+    memLimit: Zbox.MemLimit.Moderate,
+    cipher: Zbox.Cipher.Aes
   }
 })
 ```
@@ -303,27 +303,6 @@ await zbox.repairSuperBlock({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password'
 })
-```
-
-### deleteLocalCache
-
-#### zbox.deleteLocalCache(uri: string): Promise\<void>
-
-Call this method to delete ZboxFS local cache in browser. This method is useful
-when the local cache is messed up and you want to have a fresh update from Zbox
-Cloud Storage.
-
-This method is only available in browser. For OS file based local cache, you
-can directly delete the whole local cache directory.
-
-:::warning Warning
-This method must be called when repo is closed.
-:::
-
-Example:
-
-```js
-await zbox.deleteLocalCache('zbox://access_key@repo_id')
 ```
 
 ### exit
@@ -915,7 +894,8 @@ await file.close()
 
 ### read
 
-#### file.read(buf: Uint8Array): Promise\<Uint8Array>
+#### In Browser: file.read(buf: TypedArray | ArrayBuffer ): Promise\<Uint8Array>
+#### In Node.js: file.read(buf: Buffer | TypedArray | ArrayBuffer): Promise\<Buffer>
 
 Read some bytes from file using the specified buffer, returning the buffer
 containing them.
@@ -927,28 +907,44 @@ is 0, then it can indicate one of two scenarios:
   to read bytes from this file.
 - The buffer specified was 0 bytes in length.
 
-This method uses zero-copy manner, that is, the specified buffer `buf` is used
+This method is zero-copy, that is, the input buffer `buf` is **modified** and used
 for both input and output.
 
 :::warning Warning
-In order to improve performance, ZboxFS uses [transferable object] in read.
-That means the provided buffer `buf` is **not** usable after calling this method.
-If you want to keep `buf` untouched, make a copy of it before use. For
-example, `file.read(buf.slice())`.
+ZboxFS uses [transferable object] in browser. That means the input buffer `buf`
+is transferred ownership and **not** usable after calling this method. If you
+want to keep `buf` unmodified, make a copy of it before use. For example,
+`file.read(buf.slice())`.
 :::
 
-Example:
+Browser Example:
 
 ```js
 var buf = new Uint8Array(3)
 var output = await file.read(buf)   // buf is not usable after this call!
 
+// This is OK, buf will contain the bytes read
 var buf = new Uint8Array(3)
-buf = await file.read(buf)  // This is OK, buf will contain bytes read
+buf = await file.read(buf)
 
-// Or if you want buf to be untouched, copy it before use
+// If you want to keep buf unmodified, copy it before use
 var buf = new Uint8Array(3)
 var output = await file.read(buf.slice())
+```
+
+Node.js Example:
+
+```js
+var buf = Buffer.alloc(3)
+var output = await file.read(buf)   // buf is modified after this call!
+
+// TypedArray can also be used in file.read()
+var buf = new Uint8Array(3)
+buf = await file.read(buf)
+
+// If you want to keep buf unmodified, copy it before use
+var buf = Buffer.alloc(3)
+var output = await file.read(Buffer.from(buf))
 ```
 
 See Also:
@@ -957,7 +953,8 @@ See Also:
 
 ### readAll
 
-#### file.readAll(): Promise\<Uint8Array>
+#### In Browser: file.readAll(): Promise\<Uint8Array>
+#### In Node.js: file.readAll(): Promise\<Buffer>
 
 Read all bytes until end of the file, placing them into the returned buffer.
 
@@ -987,9 +984,42 @@ See Also:
 
 [read](#read), [readAll](#readall)
 
+### readStream
+
+#### In Node.js: file.readStream(): Promise\<stream.Readable>
+
+Return a [stream.Readable] stream which can read file continuously.
+
+This method is for Node.js only.
+
+Example:
+
+```js
+var stream = await file.readStream()
+
+stream.on('data', (chunk) => {
+  console.log(`data read: ${chunk}`);
+});
+
+stream.on('end', async () => {
+  await file.close();
+  console.log('read finished');
+});
+
+stream.on('error', async (err) => {
+  await file.close();
+  console.log(err);
+});
+```
+
+See Also:
+
+[read](#read), [readAll](#readall), [readAllString](#readallstring)
+
 ### write
 
-#### file.write(buf: Uint8Array | string): Promise\<number>
+#### In Browser: file.write(buf: TypedArray | ArrayBuffer | string): Promise\<number>
+#### In Node.js: file.write(buf: Buffer | TypedArray | ArrayBuffer | string): Promise\<number>
 
 Write a buffer into this file, returning how many bytes were written.
 
@@ -999,15 +1029,15 @@ that the file is no longer able to accept bytes, or that the buffer provided is
 empty.
 
 After all `write` calls are completed, [finish](#finish) must be called to
-make a version.
+make a permanent version.
 
-This method uses zero-copy manner. That is, the specified buffer `buf`, if it
+In browser, this method is zero-copy. That is, the specified buffer `buf`, if it
 is an Uint8Array, is transferred ownership during write instead of copy.
 
 :::warning Warning
 In order to improve performance, ZboxFS uses [transferable object] in write.
 That means the provided buffer `buf`, if it is an Uint8Array, is **not** usable
-after calling this method. If you want to keep `buf` untouched, make a copy of
+after calling this method. If you want to keep `buf` unmodified, make a copy of
 it before use. For example, `file.write(buf.slice())`.
 :::
 
@@ -1017,7 +1047,7 @@ Example:
 var buf = new Uint8Array([1, 2, 3])
 var written = await file.write(buf)   // buf is not usable after this call!
 
-// Or if you want buf to be untouched, copy it before use
+// Or if you want buf to be unmodified, copy it before use
 var buf = new Uint8Array([1, 2, 3])
 var written = await file.write(buf.slice())
 
@@ -1054,33 +1084,33 @@ See Also:
 
 Single-part write to file and create a new version.
 
-This method provides a convenient way of combining [write](#write) and
+This method provides a convenient way to combine [write](#write) and
 [finish](#finish).
 
-This method uses zero-copy manner. That is, the specified buffer `buf`, if it
-is an Uint8Array, is transferred ownership during write instead of copy.
+In browser, this method is zero-copy. That is, if the specified buffer `buf` is
+an Uint8Array, it is transferred ownership during write.
 
 :::warning Warning
-In order to improve performance, ZboxFS uses [transferable object] in write.
+In browser, to improve performance, ZboxFS uses [transferable object] in write.
 That means the provided buffer `buf`, if it is an Uint8Array, is **not** usable
-after calling this method. If you want to keep `buf` untouched, make a copy of
+after calling this method. If you want to keep `buf` unmodified, make a copy of
 it before use. For example, `file.write(buf.slice())`.
 :::
 
 Example:
 
 ```js
+// In browser, buf is not usable after file.writeOnce()
 var buf = new Uint8Array([1, 2, 3])
-await file.writeOnce(buf)   // buf is not usable after this call!
+await file.writeOnce(buf)
 
-// Or if you want buf to be untouched, copy it before use
+// If you want buf to be unmodified, copy it before use
+// No need to do this in Node.js
 var buf = new Uint8Array([1, 2, 3])
 await file.writeOnce(buf.slice())
 
 // You can write string to file as well
 await file.writeOnce('foo bar')
-
-// No need to call finish() afterwards
 ```
 
 See Also:
@@ -1292,13 +1322,13 @@ is 0, then it can indicate one of two scenarios:
   to read bytes from this reader.
 - The buffer specified was 0 bytes in length.
 
-This method uses zero-copy manner, that is, the specified buffer `buf` is used
+This method is zero-copy, that is, the specified buffer `buf` is used
 for both input and output.
 
 :::warning Warning
 In order to improve performance, ZboxFS uses [transferable object] in read.
 That means the provided buffer `buf` is **not** usable after calling this method.
-If you want to keep `buf` untouched, make a copy of it before use. For
+If you want to keep `buf` unmodified, make a copy of it before use. For
 example, `versionReader.read(buf.slice())`.
 :::
 
@@ -1311,7 +1341,7 @@ var output = await versionReader.read(buf) // buf is not usable after this call!
 var buf = new Uint8Array(3)
 buf = await versionReader.read(buf)  // This is OK, buf will contain bytes read
 
-// Or if you want buf to be untouched, copy it before use
+// Or if you want buf to be unmodified, copy it before use
 var buf = new Uint8Array(3)
 var output = await versionReader.read(buf.slice())
 ```
@@ -1515,3 +1545,4 @@ See Also:
 [Zbox.io]: https://zbox.io
 [IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 [transferable object]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#Passing_data_by_transferring_ownership_(transferable_objects)
+[stream.Readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
