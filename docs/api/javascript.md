@@ -1,70 +1,86 @@
-# Browser
+# JavaScript
 
-## URI
+## Overview
 
-Similar to HTTP URL, Zbox `URI` is a string that identifies a particular [Repo].
-Its syntax is as below:
+This is API reference for [ZboxFS] JavaScript bindings. It covers both browser
+and Node.js environments.
 
-```
-zbox://access_key@repo_id[?option=value]
-```
+The most core parts are [Repo] and [File] class, which provides most API for
+file system operations and file data I/O.
 
-`access_key` is a 24-character string token for API access authtication. It
-is not the key to encrypt/decrypt repo, but still need to be kept safe.
+- [Repo] - provides methods to manipulate ZboxFS file system
+- [File] - provides POSIX-like I/O methods to read/write file content
 
-`repo_id` is an unique 14-character string identifier of a [Repo].
+[Zbox.initEnv](#initenv) initialises the environment and should be called once
+before any other methods.
 
-To get a `repo_id` and `access_key`, sign up at [Zbox.io] and create a repo.
+### Calling Style
 
-URI can also include a list of options as below, which may have different
-values based on language binding.
+All methods in this API are asynchronous and return a [Promise]. You can use
+either 'Promise chaining' or 'Async/await' style to call the API.
 
-- `cache_type`
-
-  Specify local cache storage type, acceptable values are:
-
-  1. `mem`: Memory based local cache. This is the default value.
-  2. `file`: OS file based local cache. Must also set `base` directory (see
-      below) when this is specified. Not available in browser.
-  3. `browser`: [IndexedDB] based local cache. Only available in browser.
-
-- `cache_size`
-
-  Specify the maximum size of local cache, in MB. Default is one megabyte.
-
-- `base`
-
-  Specify the OS directory of `file` local cache, can be relative or absolute
-  path. Only valid when `cache_type` is `file`.
-
-Some URI Examples:
+For example,
 
 ```js
-// URI with 1MB memory based local cache
-var uri = 'zbox://access_key@repo_id'
+// Promise chaining
+zbox.openRepo({
+  uri: 'zbox://access_key@repo_id',
+  pwd: 'secret password',
+  opts: { create: true }
+})
+.then(repo => repo.openFile('/foo/bar.txt'))
+.then(file => file.readAll())
+.then(data => console.log(data))
 
-// URI with 3MB memory based local cache
-var uri = 'zbox://access_key@repo_id?cache_type=mem&cache_size=3mb'
-
-// URI with 1MB file based local cache at './local_cache' directory
-var uri = 'zbox://access_key@repo_id?cache_type=file&base=./local_cache'
-
-// URI with 3MB file based local cache at './local_cache' directory
-var uri = 'zbox://access_key@repo_id?cache_type=file&cache_size=3mb&base=./local_cache'
-
-// URI with 1MB browser based local cache, only valid in browser
-var uri = 'zbox://access_key@repo_id?cache_type=browser'
-
-// URI with 3MB browser based local cache, only valid in browser
-var uri = 'zbox://access_key@repo_id?cache_type=browser&cache_size=3mb'
+// Async/await
+async function asyncFunc() {
+  var repo = await zbox.openRepo({
+    uri: 'zbox://access_key@repo_id',
+    pwd: 'secret password',
+    opts: { create: true }
+  })
+  var file = await repo.openFile('/foo/bar.txt')
+  var data = await file.readAll()
+  console.log(data)
+}
 ```
 
-:::tip Tips
-Do not specify too large `cache_size` value for `browser` local cache, because
-browsers have different maximum size limits for [IndexedDB] and also the local
-cache is fully loaded in browser's memory when repo is opened. Set it below 5MB
-for safe and always test different sizes.
-:::
+### Error Handling
+
+With the two calling styles, there are two ways of error handling.
+
+For example,
+
+```js
+// Catch exception in promise chaining
+zbox.openRepo({
+  uri: 'zbox://access_key@repo_id',
+  pwd: 'secret password',
+  opts: { create: true }
+})
+.then(repo => repo.openFile('/foo/bar.txt'))
+.then(file => file.readAll())
+.then(data => console.log(data))
+.catch(err => {
+  console.log(err)
+})
+
+// Catch exception in async/await
+async function asyncFunc() {
+  try {
+    var repo = await zbox.openRepo({
+      uri: 'zbox://access_key@repo_id',
+      pwd: 'secret password',
+      opts: { create: true }
+    })
+    var file = await repo.openFile('/foo/bar.txt')
+    var data = await file.readAll()
+    console.log(data)
+  } catch (err) {
+    console.log(err)
+  }
+}
+```
 
 ## Class: Zbox
 
@@ -78,11 +94,11 @@ A typical usage pattern is:
 4. Close all opened [File] and [Repo] instances
 4. Call [exit](#exit) to terminate ZboxFS
 
-Example:
+#### Example
 
 ```js
 // create ZboxFS instance
-var zbox = new Zbox.Zbox()
+var zbox = new Zbox()
 
 // initialise environment
 await zbox.initEnv({ debug: true })
@@ -109,6 +125,8 @@ await zbox.exit()
 
 Create a ZboxFS instance.
 
+#### Example
+
 ```js
 var zbox = new Zbox()
 ```
@@ -123,7 +141,7 @@ This method should be called once before any other methods provided by Zbox.
 
 `options` can have `debug: true` to turn on debug logging in console output.
 
-Example:
+#### Example
 
 ```js
 await zbox.initEnv({ debug: true })
@@ -135,7 +153,7 @@ await zbox.initEnv({ debug: true })
 
 Returns whether the [URI] points at an existing repository.
 
-Example:
+#### Example
 
 ```js
 await zbox.exists('zbox://access_key@repo_id')
@@ -235,17 +253,17 @@ When opening a repo, the three crypto options `opsLimit`, `memLimit` and
 `cipher` must be exactly same as the specified values when creating the repo.
 
 Due to WebAssembly restriction, those 3 options are not available in browser.
-They are defaulted to below values in browser:
+Instead, they are defaulted to below values:
 
 - opsLmit: OpsLimit.Interactive
 - memLmit: MemLimit.Interactive
 - cipher: Cipher.Xchacha
 
-So if a repo is supposed to be opened in browser, use above values when
-creating it.
+So if a repo is supposed to be used in browser, use above values when creating
+it.
 :::
 
-Example:
+#### Example
 
 ```js
 // Create or open a repo with compression enabled
@@ -284,7 +302,8 @@ damaged. Using this method can restore the damaged super block from backup. If
 super block is all good, this method is no-op.
 
 :::warning Warning
-This method must be called when repo is closed.
+This method is not useful for memory-based storage and must be called when repo
+is closed.
 :::
 
 Argument `arg` is:
@@ -296,7 +315,7 @@ Argument `arg` is:
 }
 ```
 
-Example:
+#### Example
 
 ```js
 await zbox.repairSuperBlock({
@@ -311,7 +330,7 @@ await zbox.repairSuperBlock({
 
 Call this method to terminate ZboxFS.
 
-Example:
+#### Example
 
 ```js
 await zbox.exit()
@@ -334,7 +353,7 @@ closed after use.
 
 Close an opened repo.
 
-Example:
+#### Example
 
 ```js
 await repo.close()
@@ -361,7 +380,7 @@ Return:
 }
 ```
 
-Example:
+#### Example
 
 ```js
 var info = await repo.info()
@@ -369,24 +388,45 @@ var info = await repo.info()
 
 ### resetPassword
 
-#### repo.resetPassword({ oldPwd: string, newPwd: string }): Promise\<void>
+#### In Browser: repo.resetPassword({ oldPwd: string, newPwd: string }): Promise\<void>
+#### In Node.js: repo.resetPassword({ oldPwd: string, newPwd: string, opsLimit: OpsLimit, memLimit: MemLimit }): Promise\<void>
 
 Reset password for the repo.
 
-:::tip Tips
-If this method failed due to IO error, super block might be damaged. If so,
-use [repairSuperBlock](#repairsuperblock) to restore super block before reopen
-the repo.
+`opsLimit` is one value of [OpsLimit](#enum-opslimit). `memLimit` is one value
+of [MemLimit](#enum-memlimit).
+
+:::warning For Node.js
+If repo is to be used in both browser and Node.js, `opsLimit` and `memLimit`
+must be set `Interactive` when calling this method.
 :::
 
-Example:
+:::tip Reset password failure
+If this method failed due to IO error, super block might be damaged. In this
+case, use [repairSuperBlock](#repairsuperblock) to restore super block.
+:::
+
+#### Example
 
 ```js
+// In browser
 await repo.resetPassword({
   oldPwd: 'old password',
   newPwd: 'new password'
 })
+
+// In Node.js
+await repo.resetPassword({
+  oldPwd: 'old password',
+  newPwd: 'new password',
+  opsLimit: Zbox.OpsLimit.Interactive,
+  memLimit: Zbox.MemLimit.Interactive
+})
 ```
+
+#### See Also
+
+[repairSuperBlock](#repairsuperblock)
 
 ### pathExists
 
@@ -396,7 +436,7 @@ Returns whether the path points at an existing entity in repo.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.pathExists('/foo/bar')
@@ -410,7 +450,7 @@ Returns whether the path exists in repo and is pointing at a regular file.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.isFile('/foo/bar.txt')
@@ -424,7 +464,7 @@ Returns whether the path exists in repo and is pointing at a directory.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.isDir('/foo/bar')
@@ -444,13 +484,13 @@ See [Repo.openFile](#openfile) method for more details.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 var file = await repo.createFile('/foo/bar.txt')
 ```
 
-See Also:
+#### See Also
 
 [openFile](#openfile)
 
@@ -563,7 +603,7 @@ Creates a new, empty directory at the specified path.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.createDir('/foo')
@@ -578,7 +618,7 @@ missing.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.createDirAll('/foo/bar/baz')
@@ -611,7 +651,7 @@ Return:
 ]
 ```
 
-Example:
+#### Example
 
 ```js
 var dirs = await repo.readDir('/foo/bar')
@@ -637,7 +677,7 @@ Return:
 }
 ```
 
-Example:
+#### Example
 
 ```js
 var metadata = await repo.metadata('/foo/bar')
@@ -664,13 +704,13 @@ Return:
 ]
 ```
 
-Example:
+#### Example
 
 ```js
 var hist = await repo.history('/foo/bar.txt')
 ```
 
-See Also:
+#### See Also
 
 [VersionReader](#class-versionreader), [File.history](#history-2)
 
@@ -685,7 +725,7 @@ If `from` and `to` both point to the same file, this method is no-op.
 
 `from` and `to` must be absolute paths to regular files.
 
-Example:
+#### Example
 
 ```js
 await repo.copy({
@@ -702,13 +742,13 @@ Removes a regular file from the repo.
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.removeFile('/foo/bar.txt')
 ```
 
-See Also:
+#### See Also
 
 [removeDir](#removedir), [removeDirAll](#removedirall)
 
@@ -724,13 +764,13 @@ Remove an existing empty directory.
 `path` must be an empty directory.
 :::
 
-Example:
+#### Example
 
 ```js
 await repo.removeDir('/foo/bar')
 ```
 
-See Also:
+#### See Also
 
 [removeFile](#removefile), [removeDirAll](#removedirall)
 
@@ -743,13 +783,13 @@ carefully!
 
 `path` must be an absolute path.
 
-Example:
+#### Example
 
 ```js
 await repo.removeDirAll('/foo')
 ```
 
-See Also:
+#### See Also
 
 [removeFile](#removefile), [removeDir](#removedir)
 
@@ -762,7 +802,7 @@ already exists.
 
 `from` and `to` must be absolute paths.
 
-Example:
+#### Example
 
 ```js
 await repo.rename({
@@ -834,7 +874,7 @@ latest version. To read a specific version, a
 [VersionReader](#class-versionreader), which supports [read](#read-2) as well,
 can be used.
 
-Example:
+#### Example
 
 ```js
 // create a file and write data to it
@@ -886,7 +926,7 @@ await file.close()
 
 Close an opened file.
 
-Example:
+#### Example
 
 ```js
 await file.close()
@@ -947,7 +987,7 @@ var buf = Buffer.alloc(3)
 var output = await file.read(Buffer.from(buf))
 ```
 
-See Also:
+#### See Also
 
 [readAll](#readall), [readAllString](#readallstring)
 
@@ -958,13 +998,13 @@ See Also:
 
 Read all bytes until end of the file, placing them into the returned buffer.
 
-Example:
+#### Example
 
 ```js
 var buf = await file.readAll()
 ```
 
-See Also:
+#### See Also
 
 [read](#read), [readAllString](#readallstring)
 
@@ -974,13 +1014,13 @@ See Also:
 
 Read all bytes as a string until end of the file.
 
-Example:
+#### Example
 
 ```js
 var str = await file.readAllString()
 ```
 
-See Also:
+#### See Also
 
 [read](#read), [readAll](#readall)
 
@@ -992,7 +1032,7 @@ Return a [stream.Readable] stream which can read file continuously.
 
 This method is for Node.js only.
 
-Example:
+#### Example
 
 ```js
 var stream = await file.readStream()
@@ -1012,7 +1052,7 @@ stream.on('error', async (err) => {
 });
 ```
 
-See Also:
+#### See Also
 
 [read](#read), [readAll](#readall), [readAllString](#readallstring)
 
@@ -1041,7 +1081,7 @@ after calling this method. If you want to keep `buf` unmodified, make a copy of
 it before use. For example, `file.write(buf.slice())`.
 :::
 
-Example:
+#### Example
 
 ```js
 var buf = new Uint8Array([1, 2, 3])
@@ -1058,7 +1098,7 @@ var written = await file.write('foo bar')
 await file.finish()
 ```
 
-See Also:
+#### See Also
 
 [finish](#finish), [writeOnce](#writeonce)
 
@@ -1068,13 +1108,13 @@ See Also:
 
 Complete multi-part write to file and create a new version.
 
-Example:
+#### Example
 
 ```js
 await file.finish()
 ```
 
-See Also:
+#### See Also
 
 [write](#write), [writeOnce](#writeonce)
 
@@ -1097,7 +1137,7 @@ after calling this method. If you want to keep `buf` unmodified, make a copy of
 it before use. For example, `file.write(buf.slice())`.
 :::
 
-Example:
+#### Example
 
 ```js
 // In browser, buf is not usable after file.writeOnce()
@@ -1113,7 +1153,7 @@ await file.writeOnce(buf.slice())
 await file.writeOnce('foo bar')
 ```
 
-See Also:
+#### See Also
 
 [write](#write), [finish](#finish)
 
@@ -1134,7 +1174,7 @@ The `offset` can also be an negative integer, which means seek backwards in the
 content. But be careful don't seek before byte 0.
 :::
 
-Example:
+#### Example
 
 ```js
 var pos = await file.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
@@ -1142,7 +1182,7 @@ var pos = await file.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
 var pos = await file.seek({ from: Zbox.SeekFrom.End, offset: -42 })
 ```
 
-See Also:
+#### See Also
 
 [SeekFrom](#enum-seekfrom)
 
@@ -1158,7 +1198,7 @@ be shrunk. If it is greater than the current content size, then the content
 will be extended to `size` and have all of the intermediate data filled in with
 0s.
 
-Example:
+#### Example
 
 ```js
 await file.setLen(42)
@@ -1170,7 +1210,7 @@ await file.setLen(42)
 
 Returns the current content version number.
 
-Example:
+#### Example
 
 ```js
 var versionNum = await file.currVersion()
@@ -1194,7 +1234,7 @@ Return:
 }
 ```
 
-Example:
+#### Example
 
 ```js
 var metadata = await file.metadata()
@@ -1219,13 +1259,13 @@ Return:
 ]
 ```
 
-Example:
+#### Example
 
 ```js
 var hist = await file.history()
 ```
 
-See Also:
+#### See Also
 
 [VersionReader](#class-versionreader), [Repo.history](#history)
 
@@ -1238,7 +1278,7 @@ Get a [version reader](#class-versionreader) of the specified version.
 To get the version number, first call [history](#history-2) to get the list of
 all versions and then choose the version number from it.
 
-Example:
+#### Example
 
 ```js
 // Get file history versions
@@ -1253,7 +1293,7 @@ var hist = await file.history()
 var versionReader = await file.versionReader(42)
 ```
 
-See Also:
+#### See Also
 
 [VersionReader](#class-versionreader), [File.history](#history-2)
 
@@ -1273,7 +1313,7 @@ A typical usage pattern is:
    [readAllString](#readallstring-2)
 4. Close the version reader using [close](#close-3)
 
-Example:
+#### Example
 
 ```js
 // Get file history versions
@@ -1300,7 +1340,7 @@ await versionReader.close()
 
 Close an opened version reader.
 
-Example:
+#### Example
 
 ```js
 versionReader.close()
@@ -1332,7 +1372,7 @@ If you want to keep `buf` unmodified, make a copy of it before use. For
 example, `versionReader.read(buf.slice())`.
 :::
 
-Example:
+#### Example
 
 ```js
 var buf = new Uint8Array(3)
@@ -1346,7 +1386,7 @@ var buf = new Uint8Array(3)
 var output = await versionReader.read(buf.slice())
 ```
 
-See Also:
+#### See Also
 
 [readAll](#readall-2), [readAllString](#readallstring-2)
 
@@ -1356,13 +1396,13 @@ See Also:
 
 Read all bytes until end of the reader, placing them into the returned buffer.
 
-Example:
+#### Example
 
 ```js
 var buf = await versionReader.readAll()
 ```
 
-See Also:
+#### See Also
 
 [read](#read-2), [readAllString](#readallstring-2)
 
@@ -1372,13 +1412,13 @@ See Also:
 
 Read all bytes as a string until end of the reader.
 
-Example:
+#### Example
 
 ```js
 var str = await versionReader.readAllString()
 ```
 
-See Also:
+#### See Also
 
 [read](#read-2), [readAll](#readall-2)
 
@@ -1399,7 +1439,7 @@ The `offset` can also be an negative integer, which means seek backwards in the
 content. But be careful don't seek before byte 0.
 :::
 
-Example:
+#### Example
 
 ```js
 var pos = await versionReader.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
@@ -1407,7 +1447,7 @@ var pos = await versionReader.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
 var pos = await versionReader.seek({ from: Zbox.SeekFrom.End, offset: -42 })
 ```
 
-See Also:
+#### See Also
 
 [SeekFrom](#enum-seekfrom)
 
@@ -1445,7 +1485,7 @@ Enumerations:
 
 - Sensitive
 
-See Also:
+#### See Also
 
 [MemLimit](#enum-memlimit), [openRepo](#openrepo)
 
@@ -1488,7 +1528,7 @@ Enumerations:
 
   1024MB memory
 
-See Also:
+#### See Also
 
 [OpsLimit](#enum-opslimit), [openRepo](#openrepo)
 
@@ -1511,7 +1551,7 @@ Enumerations:
 
   AES256-GCM, hardware only
 
-See Also:
+#### See Also
 
 [openRepo](#openrepo)
 
@@ -1535,7 +1575,7 @@ Enumerations:
 
   Set the offset to the current position plus the specified number of bytes.
 
-See Also:
+#### See Also
 
 [File.seek](#seek), [VersionReader.seek](#seek-2)
 
@@ -1543,6 +1583,8 @@ See Also:
 [Repo]: #class-repo
 [File]: #class-file
 [Zbox.io]: https://zbox.io
+[ZboxFS]: https://zbox.io/fs
+[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 [transferable object]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#Passing_data_by_transferring_ownership_(transferable_objects)
 [stream.Readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable

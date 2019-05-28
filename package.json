@@ -7,8 +7,8 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Bo Lu",
+  "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
     "@vuepress/plugin-active-header-links": "^1.0.0-alpha.47",

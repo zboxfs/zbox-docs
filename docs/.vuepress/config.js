@@ -38,12 +38,10 @@ module.exports = {
         path: '/api/',
         sidebarDepth: 2,
         children: [
-          '/api/browser',
-          '/api/nodejs',
+          '/api/javascript',
           '/api/rust'
         ]
-      },
-      '/internals'
+      }
     ]
   }
 };

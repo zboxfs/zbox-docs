@@ -1,3 +1,7 @@
+---
+sidebarDepth: 1
+---
+
 # Introduction
 
 Zbox is a no-knowledge, privacy-focused cloud flie storage for apps. It is based
@@ -29,9 +33,9 @@ for developers, not for consumers.
 
 ![Zbox Overview](../assets/overview.svg)
 
-As an module, ZboxFS runs within the same memory of your application. It
-encapsulates a virtual file system in a secure repository (Repo) and provides
-file IO API to application.
+As an internal module, ZboxFS runs within the same memory space as your
+application. It encapsulates a virtual file system in a secure repository
+(Repo) and provides file IO API to application.
 
 All data stored in the repo is encrypted using user-specified key. Optionally,
 data can be de-duplicated and compressed. When a file is saved to the repo, it
@@ -53,7 +57,7 @@ data.
 - Everything is encrypted locally :lock:, including metadata and directory
   structure, no knowledge can be leaked to underlying storage
 - State-of-the-art cryptography: AES-256-GCM (hardware), XChaCha20-Poly1305,
-  Argon2 password hashing and etc., empowered by [libsodium](https://libsodium.org/)
+  Argon2 password hashing and etc., empowered by [libsodium]
 - Support multiple storages, including memory, OS file system, RDBMS, Key-value
   object store and more
 - File and directories are chunked into same-sized blocks to eliminate metadata
@@ -109,3 +113,4 @@ Encryption key and any unencrypted data are never leave local app memory, and
 only your app can access them.
 
 [ZboxFS]: https://zbox.io/fs
+[libsodium]: https://libsodium.org
