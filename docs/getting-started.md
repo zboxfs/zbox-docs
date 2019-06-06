@@ -1,13 +1,84 @@
 # Getting Started
 
+## Installation
+
+Zbox supports different programming languages, choose your favourite and follow
+the steps below to install Zbox.
+
+### Browser
+
+Simply download and include with a script tag. `Zbox` class will be globally
+available.
+
+1. Download `zbox-browser-0.1.2.tar.gz` from the [latest release]
+
+2. Extract and copy the whole `zbox-browser-0.1.2` folder to your website's
+   `static` or `public` folder
+
+   The folder should like below:
+
+   ```sh
+    zbox-browser-0.1.2
+    ├── 1.worker.js
+    ├── 1.worker.js.map
+    ├── 39fe4d07f367480d98de.module.wasm
+    ├── index.js
+    ├── index.js.map
+    ├── release.txt
+    ├── worker.js
+    └── worker.js.map
+   ```
+
+3. Import using `<script>` tag
+
+  ```html
+  <script src="zbox-browser-0.1.2/index.js"></script>
+  ```
+
+:::warning Same origin
+Because of [same-origin policy] restriction, use this package as a cross-origin
+script, such as CDN,  won't work.
+:::
+
+### Node.js
+
+Install Zbox via [npm]:
+
+```bash
+npm install @zbox/nodejs
+```
+
+This will automatically install platform-specific library, which currently
+supports Linux, Windows and macOS. If your platform is not supported, please
+[raise an issue](https://github.com/zboxfs/zbox-nodejs/issues).
+
+### Rust
+
+Install Zbox via [Cargo] by adding the following dependency to your project
+`Cargo.toml`:
+
+```toml
+[dependencies]
+zbox = { version = "0.8.1", features = ["storage-zbox-native"] }
+```
+
+Zbox depends on [libsodium]. If you don't want to install it by yourself,
+simply specify `libsodium-bundled` feature in the dependency, which will
+automatically download, verify and build libsodium.
+
+```toml
+[dependencies]
+zbox = { version = "0.8.1", features = ["storage-zbox-native", "libsodium-bundled"] }
+```
+
 ## Create a Repo
 
 Before start using Zbox, you need to create a repo on [zbox.io](https://zbox.io).
 If you don't want to sign up, create a test repo on [try.zbox.io], which will be
 valid for 48 hours.
 
-Each repo is identified by [URI](/api/#uri), which is an unique URL-like string.
-For example,
+After create repo, you will get an [URI](/api/#uri) which is an unique URL-like
+identifier of a repo. For example,
 
 ```
 zbox://d9Ysc4PJa5sT7NKJyxDjMpZg@jRpbY2DEra6qMR
@@ -22,143 +93,202 @@ access authtication. But anyone who obtained the access key can potentially
 delete your repo, so you still need to keep it safe.
 :::
 
-## Installation
+## Start Using Zbox
 
-We provide official libraries for different programming languages. Use your
-favourite package manager tool to install Zbox.
+Using Zbox is simple and straightforward. First make sure you have read through
+[installation steps](#installation) above, and [created a repo](#create-a-repo)
+on zbox.io.
+
+Now let's create our first app.
 
 ### Browser
 
-1. Download `zbox-browser-0.1.0.tar.gz` from [latest release]
-2. Extract it to your website's `static` or `public` folder
-3. Import it using `<script>` tag
+1. First, create an empty [Express] project `zbox-app`:
 
-  ```html
-  <script src="zbox-browser-0.1.0/index.js"></script>
-  ```
+   ```sh
+   mkdir zbox-app
+   cd zbox-app
+   npm init -y
+   npm install express --save
+   ```
 
-:::warning Same origin
-Because of [same-origin policy] restriction, use this package as a cross-origin
-script won't work.
-:::
+2. Then create `app.js` file in `zbox-app` folder:
+
+   ```js
+   const express = require('express');
+   const app = express();
+   const port = 3000;
+
+   app.use(express.static(__dirname + '/'));
+   app.listen(port, () => console.log(`My Zbox app listening on port ${port}!`));
+   ```
+
+3. Download [zbox-browser-0.1.2.tar.gz] and extract it to `zbox-app` folder.
+
+4. Create another file `index.html` in the same folder, replace `[your_repo_uri]`
+   with your repo's URI.
+
+   ```html
+   <html>
+     <head>
+       <title>My First Zbox App</title>
+       <meta charset="utf-8"/>
+       <script src="zbox-browser-0.1.2/index.js"></script>
+       <script>
+         (async () => {
+           // create a Zbox instance
+           const zbox = new Zbox();
+
+           // initialise Zbox environment and turn on debug logs
+           await zbox.initEnv({ debug: true });
+
+           // open the repo
+           var repo = await zbox.openRepo({
+             uri: '[your_repo_uri]',
+             pwd: 'secret password',
+             opts: { create: true }
+           });
+
+           // close repo and exit Zbox
+           await repo.close();
+           await zbox.exit();
+         })();
+       </script>
+     </head>
+     <body>
+       <h1>Welcome to Zbox!</h1>
+       <p>Open "Developer Tools" to watch the logs.</p>
+     </body>
+   </html>
+   ```
+
+5. Save all the files and start the web server:
+
+   ```sh
+   node app.js
+   ```
+
+6. Open http://localhost:3000/ in browser, remember to open developer tools to
+   watch the logs.
+
+   If you can see logs like below, you're all done.
+
+   ```
+   ZboxFS 0.8.1 - Zero-details, privacy-focused in-app file system
+   ...[logs omitted]
+   ZboxFS exited
+   ```
+
+That's it, now you have a private Zbox file system running in browser!
 
 ### Node.js
 
-Install Zbox via [npm]:
+1. First, create an empty project `zbox-app` and install Zbox package:
 
-```bash
-npm install @zbox/nodejs
-```
+   ```sh
+   mkdir zbox-app
+   cd zbox-app
+   npm init -y
+   npm install @zbox/nodejs --save
+   ```
 
-### Rust
+2. Create `zbox-test.js` file in `zbox-app` folder, replace `[your_repo_uri]`
+   with your repo's URI.
 
-Install Zbox via [cargo] by adding the following dependency to your project
-`Cargo.toml`:
+   ```js
+   // zbox-test.js
+   const Zbox = require('@zbox/nodejs');
 
-```toml
-[dependencies]
-zbox = { version = "0.7.1", features = ["storage-zbox-native"] }
-```
+   (async () => {
+     // create a Zbox instance
+     const zbox = new Zbox();
 
-Zbox depends on [libsodium]. If you don't want to install it by yourself,
-simply specify `libsodium-bundled` feature in the dependency, which will
-automatically download, verify and build libsodium.
+     // initialise Zbox environment and turn on debug logs
+     await zbox.initEnv({ debug: true });
 
-```toml
-[dependencies]
-zbox = { version = "0.7.1", features = ["storage-zbox-native", "libsodium-bundled"] }
-```
+     // open the repo
+     var repo = await zbox.openRepo({
+       uri: '[your_repo_uri]',
+       pwd: 'secret password',
+       opts: { create: true }
+     });
 
-## Hello World
+     // close repo and exit Zbox
+     await repo.close();
+     await zbox.exit();
+   })();
+   ```
 
-### JavaScript
+3. Now run the `zbox-test.js` file:
 
-For Node.js, import Zbox first:
+   ```sh
+   node zbox-test.js
+   ```
 
-```js
-const Zbox = require('@zbox/nodejs');
-```
-
-Then, replace `[your_repo_uri]` below with your repo's URI and start using Zbox.
-
-```js
-(async () => {
-  // create a Zbox instance
-  const zbox = new Zbox();
-
-  // initialise environment, called once before using Zbox
-  await zbox.initEnv({ debug: true });
-
-  // open the repo
-  var repo = await zbox.openRepo({
-    uri: '[your_repo_uri]',
-    pwd: 'secret password',
-    opts: { create: true }
-  });
-
-  // create a file
-  var file = await repo.createFile('/hello_world.txt');
-
-  // write content to file
-  await file.writeOnce('Hello, World!');
-
-  // seek to the beginning of file
-  await file.seek({ from: Zbox.SeekFrom.Start, offset: 0 });
-
-  // read all content as string
-  const str = await file.readAllString();
-  console.log(str);
-
-  // close file and repo
-  await file.close();
-  await repo.close();
-})();
-```
+That's it, now you have a private Zbox file system running in Node.js!
 
 ### Rust
 
-Create a Rust app and replace `[your_repo_uri]` below with your repo's URI.
+1. Create an empty Rust project `zbox-app`:
 
-```rust
-extern crate zbox;
+   ```sh
+   cargo new --bin zbox-app
+   cd zbox-app
+   ```
 
-use std::io::{Read, Write, Seek, SeekFrom};
-use zbox::{init_env, RepoOpener, OpenOptions};
+2. Add Zbox as dependency in `Cargo.toml`:
 
-fn main() {
-    // initialise zbox environment, called first
-    init_env();
+   ```toml
+   [dependencies]
+   zbox = { version = "0.8.1", features = ["storage-zbox-native", "libsodium-bundled"] }
+   ```
 
-    // create and open a repository in current OS directory
-    let mut repo = RepoOpener::new()
-        .create(true)
-        .open([your_repo_uri], "your password")
-        .unwrap();
+3. Write `src/main.rs` with code below and replace `[your_repo_uri]` with
+   your repo's URI.
 
-    // create and open a file in repository for writing
-    let mut file = OpenOptions::new()
-        .create(true)
-        .open(&mut repo, "/hello_world.txt")
-        .unwrap();
+   ```rust
+   extern crate zbox;
 
-    // use std::io::Write trait to write data into it
-    file.write_all(b"Hello, World!").unwrap();
+   use zbox::{init_env, RepoOpener};
 
-    // finish writing to make a permanent content version
-    file.finish().unwrap();
+   fn main() {
+       // initialise zbox environment, called first
+       init_env();
 
-    // read file content using std::io::Read trait
-    let mut content = String::new();
-    file.seek(SeekFrom::Start(0)).unwrap();
-    file.read_to_string(&mut content).unwrap();
-    assert_eq!(content, "Hello, World!");
-}
-```
+       // create and open a repository
+       let mut _repo = RepoOpener::new()
+           .create(true)
+           .open("[your_repo_uri]", "your password")
+           .unwrap();
+   }
+   ```
+
+4. Turn on debug logs and run the app:
+
+   ```sh
+   export RUST_LOG=zbox=debug
+   cargo run
+   ```
+
+That's it, now you have a private Zbox file system running in Rust!
+
+## What's Next
+
+Next, you can check out more on [tutorials](/tutorials/) or
+[API reference](/api/).
+
+If you have any issues, please raise it on our GitHub repos:
+
+- [ZboxFS](https://github.com/zboxfs/zbox)
+- [ZboxFS browser JavaScript binding](https://github.com/zboxfs/zbox-browser)
+- [ZboxFS Node.js binding](https://github.com/zboxfs/zbox-nodejs)
 
 [npm]: https://www.npmjs.com
-[cargo]: https://crates.io
+[Cargo]: https://crates.io
 [libsodium]: https://libsodium.org
 [try.zbox.io]: https://try.zbox.io
+[zbox-browser-0.1.2.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
 [latest release]: https://github.com/zboxfs/zbox-browser/releases/latest
 [Personal access tokens]: https://github.com/
 [same-origin policy]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
+[Express]: https://expressjs.com

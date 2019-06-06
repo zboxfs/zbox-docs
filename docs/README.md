@@ -24,8 +24,8 @@ directories are guarded by ACID transaction. Data integrity is guaranteed by
 authenticated encryption primitives
 [AEAD encryption](https://en.wikipedia.org/wiki/Authenticated_encryption).
 
-Zbox is not a traditional file system, it cannot be mounted to operating system
-and shared access by many processes. Only the app runs it has the exclusive
+Zbox is not a traditional file system, it cannot be mounted on operating system
+and share access between processes. Only the app runs it has the exclusive
 access to Zbox. Zbox is also not like Dropbox, OneDrive and etc. It is built
 for developers, not for consumers.
 
@@ -60,7 +60,7 @@ data.
   Argon2 password hashing and etc., empowered by [libsodium]
 - Support multiple storages, including memory, OS file system, RDBMS, Key-value
   object store and more
-- File and directories are chunked into same-sized blocks to eliminate metadata
+- Files and directories are chunked into same-sized blocks to eliminate metadata
   leakage
 - Content-based data chunk deduplication and file-based deduplication
 - Data compression using [LZ4](http://www.lz4.org/) in fast mode, optional

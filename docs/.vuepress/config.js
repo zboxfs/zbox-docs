@@ -25,14 +25,7 @@ module.exports = {
     sidebar: [
       ['/', 'Introduction'],
       '/getting-started',
-      {
-        title: 'Tutorials',
-        path: '/tutorials/',
-        sidebarDepth: 2,
-        children: [
-          '/tutorials/hello-world'
-        ]
-      },
+      '/tutorials',
       {
         title: 'API Reference',
         path: '/api/',

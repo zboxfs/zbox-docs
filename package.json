@@ -7,7 +7,7 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
-  "author": "Bo Lu",
+  "author": "Zbox Support <support@zbox.io>",
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {

@@ -30,7 +30,7 @@ zbox.openRepo({
 })
 .then(repo => repo.openFile('/foo/bar.txt'))
 .then(file => file.readAll())
-.then(data => console.log(data))
+.then(data => console.log(data));
 
 // Async/await
 async function asyncFunc() {
@@ -38,10 +38,10 @@ async function asyncFunc() {
     uri: 'zbox://access_key@repo_id',
     pwd: 'secret password',
     opts: { create: true }
-  })
-  var file = await repo.openFile('/foo/bar.txt')
-  var data = await file.readAll()
-  console.log(data)
+  });
+  var file = await repo.openFile('/foo/bar.txt');
+  var data = await file.readAll();
+  console.log(data);
 }
 ```
 
@@ -62,8 +62,8 @@ zbox.openRepo({
 .then(file => file.readAll())
 .then(data => console.log(data))
 .catch(err => {
-  console.log(err)
-})
+  console.log(err);
+});
 
 // Catch exception in async/await
 async function asyncFunc() {
@@ -72,12 +72,12 @@ async function asyncFunc() {
       uri: 'zbox://access_key@repo_id',
       pwd: 'secret password',
       opts: { create: true }
-    })
-    var file = await repo.openFile('/foo/bar.txt')
-    var data = await file.readAll()
-    console.log(data)
+    });
+    var file = await repo.openFile('/foo/bar.txt');
+    var data = await file.readAll();
+    console.log(data);
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 ```
@@ -98,27 +98,27 @@ A typical usage pattern is:
 
 ```js
 // create ZboxFS instance
-var zbox = new Zbox()
+var zbox = new Zbox();
 
 // initialise environment
-await zbox.initEnv({ debug: true })
+await zbox.initEnv({ debug: true });
 
 // create or open a repo
 var repo = await zbox.openRepo({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password',
   opts: { create: true }
-})
+});
 
 // do your works here, for example, create a file
-var file = await repo.createFile('/foo.txt')
+var file = await repo.createFile('/foo.txt');
 
 // close file and repo
-await file.close()
-await repo.close()
+await file.close();
+await repo.close();
 
 // terminate ZboxFS
-await zbox.exit()
+await zbox.exit();
 ```
 
 ### constructor
@@ -128,7 +128,7 @@ Create a ZboxFS instance.
 #### Example
 
 ```js
-var zbox = new Zbox()
+var zbox = new Zbox();
 ```
 
 ### initEnv
@@ -144,7 +144,19 @@ This method should be called once before any other methods provided by Zbox.
 #### Example
 
 ```js
-await zbox.initEnv({ debug: true })
+await zbox.initEnv({ debug: true });
+```
+
+### version
+
+#### zbox.version(): Promise\<String>
+
+Return ZboxFS version as string.
+
+#### Example
+
+```js
+const version = await zbox.version();
 ```
 
 ### exists
@@ -156,7 +168,7 @@ Returns whether the [URI] points at an existing repository.
 #### Example
 
 ```js
-await zbox.exists('zbox://access_key@repo_id')
+await zbox.exists('zbox://access_key@repo_id');
 ```
 
 ### openRepo
@@ -274,7 +286,7 @@ var repo = await zbox.openRepo({
     create: true,
     compress: true
   }
-})
+});
 
 // Create or open a repo with alternative crypto settings
 // Note: this cannot run in browser.
@@ -287,7 +299,7 @@ var repo = await zbox.openRepo({
     memLimit: Zbox.MemLimit.Moderate,
     cipher: Zbox.Cipher.Aes
   }
-})
+});
 ```
 
 ### repairSuperBlock
@@ -321,7 +333,7 @@ Argument `arg` is:
 await zbox.repairSuperBlock({
   uri: 'zbox://access_key@repo_id',
   pwd: 'secret password'
-})
+});
 ```
 
 ### exit
@@ -333,7 +345,7 @@ Call this method to terminate ZboxFS.
 #### Example
 
 ```js
-await zbox.exit()
+await zbox.exit();
 ```
 
 ## Class: Repo
@@ -356,7 +368,7 @@ Close an opened repo.
 #### Example
 
 ```js
-await repo.close()
+await repo.close();
 ```
 
 ### info
@@ -383,7 +395,7 @@ Return:
 #### Example
 
 ```js
-var info = await repo.info()
+var info = await repo.info();
 ```
 
 ### resetPassword
@@ -413,7 +425,7 @@ case, use [repairSuperBlock](#repairsuperblock) to restore super block.
 await repo.resetPassword({
   oldPwd: 'old password',
   newPwd: 'new password'
-})
+});
 
 // In Node.js
 await repo.resetPassword({
@@ -421,7 +433,7 @@ await repo.resetPassword({
   newPwd: 'new password',
   opsLimit: Zbox.OpsLimit.Interactive,
   memLimit: Zbox.MemLimit.Interactive
-})
+});
 ```
 
 #### See Also
@@ -439,7 +451,7 @@ Returns whether the path points at an existing entity in repo.
 #### Example
 
 ```js
-await repo.pathExists('/foo/bar')
+await repo.pathExists('/foo/bar');
 ```
 
 ### isFile
@@ -453,7 +465,7 @@ Returns whether the path exists in repo and is pointing at a regular file.
 #### Example
 
 ```js
-await repo.isFile('/foo/bar.txt')
+await repo.isFile('/foo/bar.txt');
 ```
 
 ### isDir
@@ -467,7 +479,7 @@ Returns whether the path exists in repo and is pointing at a directory.
 #### Example
 
 ```js
-await repo.isDir('/foo/bar')
+await repo.isDir('/foo/bar');
 ```
 
 ### createFile
@@ -487,7 +499,7 @@ See [Repo.openFile](#openfile) method for more details.
 #### Example
 
 ```js
-var file = await repo.createFile('/foo/bar.txt')
+var file = await repo.createFile('/foo/bar.txt');
 ```
 
 #### See Also
@@ -510,7 +522,7 @@ Argument `arg` can be either one of the below:
   Example:
 
   ```js
-  var file = await repo.openFile('/foo/bar.txt')
+  var file = await repo.openFile('/foo/bar.txt');
   ```
 
 - `options`: Object
@@ -592,7 +604,7 @@ Argument `arg` can be either one of the below:
       write: true,
       append: true
     }
-  })
+  });
   ```
 
 ### createDir
@@ -606,7 +618,7 @@ Creates a new, empty directory at the specified path.
 #### Example
 
 ```js
-await repo.createDir('/foo')
+await repo.createDir('/foo');
 ```
 
 ### createDirAll
@@ -621,7 +633,7 @@ missing.
 #### Example
 
 ```js
-await repo.createDirAll('/foo/bar/baz')
+await repo.createDirAll('/foo/bar/baz');
 ```
 
 ### readDir
@@ -654,7 +666,7 @@ Return:
 #### Example
 
 ```js
-var dirs = await repo.readDir('/foo/bar')
+var dirs = await repo.readDir('/foo/bar');
 ```
 
 ### metadata
@@ -680,7 +692,7 @@ Return:
 #### Example
 
 ```js
-var metadata = await repo.metadata('/foo/bar')
+var metadata = await repo.metadata('/foo/bar');
 ```
 
 ### history
@@ -707,7 +719,7 @@ Return:
 #### Example
 
 ```js
-var hist = await repo.history('/foo/bar.txt')
+var hist = await repo.history('/foo/bar.txt');
 ```
 
 #### See Also
@@ -731,7 +743,7 @@ If `from` and `to` both point to the same file, this method is no-op.
 await repo.copy({
   from: '/foo/bar.txt',
   to: '/foo/baz.txt'
-})
+});
 ```
 
 ### removeFile
@@ -745,7 +757,7 @@ Removes a regular file from the repo.
 #### Example
 
 ```js
-await repo.removeFile('/foo/bar.txt')
+await repo.removeFile('/foo/bar.txt');
 ```
 
 #### See Also
@@ -767,7 +779,7 @@ Remove an existing empty directory.
 #### Example
 
 ```js
-await repo.removeDir('/foo/bar')
+await repo.removeDir('/foo/bar');
 ```
 
 #### See Also
@@ -786,7 +798,7 @@ carefully!
 #### Example
 
 ```js
-await repo.removeDirAll('/foo')
+await repo.removeDirAll('/foo');
 ```
 
 #### See Also
@@ -808,7 +820,7 @@ already exists.
 await repo.rename({
   from: '/foo/bar.txt',
   to: '/foo/baz.txt'
-})
+});
 ```
 
 ## Class: File
@@ -848,11 +860,11 @@ permanent version. There are two ways of writing data to a file:
   new version.
 
   ```js
-  const buf = new Uint8Array([1, 2, 3])
-  var file = await repo.createFile('/foo.txt')
-  await file.write(buf.slice(0, 2))
-  await file.write(buf.slice(2))
-  await file.finish()   // now file content is [1, 2, 3]
+  const buf = new Uint8Array([1, 2, 3]);
+  var file = await repo.createFile('/foo.txt');
+  await file.write(buf.slice(0, 2));
+  await file.write(buf.slice(2));
+  await file.finish();   // now file content is [1, 2, 3]
   ```
 
 - **Single-part Write**
@@ -861,9 +873,9 @@ permanent version. There are two ways of writing data to a file:
   [finish](#finish) internally to create a new version.
 
   ```js
-  const buf = new Uint8Array([1, 2, 3])
-  var file = await repo.createFile('/foo.txt')
-  await file.writeOnce(buf.slice())  // now file content is [1, 2, 3]
+  const buf = new Uint8Array([1, 2, 3]);
+  var file = await repo.createFile('/foo.txt');
+  await file.writeOnce(buf.slice()); // now file content is [1, 2, 3]
   ```
 
 #### Reading
@@ -878,46 +890,46 @@ can be used.
 
 ```js
 // create a file and write data to it
-const buf = new Uint8Array([1, 2, 3, 4, 5, 6])
-var file = await repo.createFile('/foo.txt')
-await file.writeOnce(buf.slice())
+const buf = new Uint8Array([1, 2, 3, 4, 5, 6]);
+var file = await repo.createFile('/foo.txt');
+await file.writeOnce(buf.slice());
 
 // read the first 2 bytes
-await file.seek({ from: Zbox.SeekFrom.Start, offset: 0 })
-var dst = await file.read(new Uint8Array(2))    // now dst is [1, 2]
+await file.seek({ from: Zbox.SeekFrom.Start, offset: 0 });
+var dst = await file.read(new Uint8Array(2));    // now dst is [1, 2]
 
 // create a new version, now the file content is [1, 2, 7, 8, 5, 6]
-await file.writeOnce(new Uint8Array([7, 8]))
+await file.writeOnce(new Uint8Array([7, 8]));
 
 // notice that reading is on the latest version
-await file.seek({ from: Zbox.SeekFrom.Current, offset: -2 })
-dst = await file.read(dst)    // now dst is [7, 8]
+await file.seek({ from: Zbox.SeekFrom.Current, offset: -2 });
+dst = await file.read(dst);    // now dst is [7, 8]
 
-await file.close()
+await file.close();
 ```
 
 Read multiple versions using [VersionReader](#class-versionreader).
 
 ```js
 // create a file and write 2 versions
-var file = await repo.createFile('/foo.txt')
-await file.writeOnce('foo')
-await file.writeOnce('bar')
+var file = await repo.createFile('/foo.txt');
+await file.writeOnce('foo');
+await file.writeOnce('bar');
 
 // get latest version number
-const currVer = await file.currVersion()
+const currVer = await file.currVersion();
 
 // create a version reader and read latest version of content
-var vrdr = await file.versionReader(currVer)
-var content = await vrdr.readAllString()    // now content is 'foobar'
-await vrdr.close()
+var vrdr = await file.versionReader(currVer);
+var content = await vrdr.readAllString();    // now content is 'foobar'
+await vrdr.close();
 
 // create another version reader and read previous version of content
-vrdr = await file.versionReader(currVer - 1)
-content = await vrdr.readAllString()    // now content is 'foo'
-await vrdr.close()
+vrdr = await file.versionReader(currVer - 1);
+content = await vrdr.readAllString();    // now content is 'foo'
+await vrdr.close();
 
-await file.close()
+await file.close();
 ```
 
 ### close
@@ -929,7 +941,7 @@ Close an opened file.
 #### Example
 
 ```js
-await file.close()
+await file.close();
 ```
 
 ### read
@@ -960,31 +972,31 @@ want to keep `buf` unmodified, make a copy of it before use. For example,
 Browser Example:
 
 ```js
-var buf = new Uint8Array(3)
-var output = await file.read(buf)   // buf is not usable after this call!
+var buf = new Uint8Array(3);
+var output = await file.read(buf);   // buf is not usable after this call!
 
 // This is OK, buf will contain the bytes read
-var buf = new Uint8Array(3)
-buf = await file.read(buf)
+var buf = new Uint8Array(3);
+buf = await file.read(buf);
 
 // If you want to keep buf unmodified, copy it before use
-var buf = new Uint8Array(3)
-var output = await file.read(buf.slice())
+var buf = new Uint8Array(3);
+var output = await file.read(buf.slice());
 ```
 
 Node.js Example:
 
 ```js
-var buf = Buffer.alloc(3)
-var output = await file.read(buf)   // buf is modified after this call!
+var buf = Buffer.alloc(3);
+var output = await file.read(buf);   // buf is modified after this call!
 
 // TypedArray can also be used in file.read()
-var buf = new Uint8Array(3)
-buf = await file.read(buf)
+var buf = new Uint8Array(3);
+buf = await file.read(buf);
 
 // If you want to keep buf unmodified, copy it before use
-var buf = Buffer.alloc(3)
-var output = await file.read(Buffer.from(buf))
+var buf = Buffer.alloc(3);
+var output = await file.read(Buffer.from(buf));
 ```
 
 #### See Also
@@ -1001,7 +1013,7 @@ Read all bytes until end of the file, placing them into the returned buffer.
 #### Example
 
 ```js
-var buf = await file.readAll()
+var buf = await file.readAll();
 ```
 
 #### See Also
@@ -1017,7 +1029,7 @@ Read all bytes as a string until end of the file.
 #### Example
 
 ```js
-var str = await file.readAllString()
+var str = await file.readAllString();
 ```
 
 #### See Also
@@ -1035,7 +1047,7 @@ This method is for Node.js only.
 #### Example
 
 ```js
-var stream = await file.readStream()
+var stream = await file.readStream();
 
 stream.on('data', (chunk) => {
   console.log(`data read: ${chunk}`);
@@ -1084,18 +1096,18 @@ it before use. For example, `file.write(buf.slice())`.
 #### Example
 
 ```js
-var buf = new Uint8Array([1, 2, 3])
-var written = await file.write(buf)   // buf is not usable after this call!
+var buf = new Uint8Array([1, 2, 3]);
+var written = await file.write(buf);   // buf is not usable after this call!
 
 // Or if you want buf to be unmodified, copy it before use
-var buf = new Uint8Array([1, 2, 3])
-var written = await file.write(buf.slice())
+var buf = new Uint8Array([1, 2, 3]);
+var written = await file.write(buf.slice());
 
 // You can write string to file as well
-var written = await file.write('foo bar')
+var written = await file.write('foo bar');
 
 // Don't forget to call finish() to make a version
-await file.finish()
+await file.finish();
 ```
 
 #### See Also
@@ -1111,7 +1123,7 @@ Complete multi-part write to file and create a new version.
 #### Example
 
 ```js
-await file.finish()
+await file.finish();
 ```
 
 #### See Also
@@ -1141,16 +1153,16 @@ it before use. For example, `file.write(buf.slice())`.
 
 ```js
 // In browser, buf is not usable after file.writeOnce()
-var buf = new Uint8Array([1, 2, 3])
-await file.writeOnce(buf)
+var buf = new Uint8Array([1, 2, 3]);
+await file.writeOnce(buf);
 
 // If you want buf to be unmodified, copy it before use
 // No need to do this in Node.js
-var buf = new Uint8Array([1, 2, 3])
-await file.writeOnce(buf.slice())
+var buf = new Uint8Array([1, 2, 3]);
+await file.writeOnce(buf.slice());
 
 // You can write string to file as well
-await file.writeOnce('foo bar')
+await file.writeOnce('foo bar');
 ```
 
 #### See Also
@@ -1177,9 +1189,9 @@ content. But be careful don't seek before byte 0.
 #### Example
 
 ```js
-var pos = await file.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
-var pos = await file.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
-var pos = await file.seek({ from: Zbox.SeekFrom.End, offset: -42 })
+var pos = await file.seek({ from: Zbox.SeekFrom.Start, offset: 42 });
+var pos = await file.seek({ from: Zbox.SeekFrom.Current, offset: 42 });
+var pos = await file.seek({ from: Zbox.SeekFrom.End, offset: -42 });
 ```
 
 #### See Also
@@ -1201,7 +1213,7 @@ will be extended to `size` and have all of the intermediate data filled in with
 #### Example
 
 ```js
-await file.setLen(42)
+await file.setLen(42);
 ```
 
 ### currVersion
@@ -1213,7 +1225,7 @@ Returns the current content version number.
 #### Example
 
 ```js
-var versionNum = await file.currVersion()
+var versionNum = await file.currVersion();
 ```
 
 ### metadata
@@ -1237,7 +1249,7 @@ Return:
 #### Example
 
 ```js
-var metadata = await file.metadata()
+var metadata = await file.metadata();
 ```
 
 ### history
@@ -1262,7 +1274,7 @@ Return:
 #### Example
 
 ```js
-var hist = await file.history()
+var hist = await file.history();
 ```
 
 #### See Also
@@ -1282,7 +1294,7 @@ all versions and then choose the version number from it.
 
 ```js
 // Get file history versions
-var hist = await file.history()
+var hist = await file.history();
 
 // Suppose the history version list is:
 // [
@@ -1290,7 +1302,7 @@ var hist = await file.history()
 //   { num: 43, contentLen: 456, createdAt: 1540376683 }
 // ]
 // then we can choose version 42 to read from
-var versionReader = await file.versionReader(42)
+var versionReader = await file.versionReader(42);
 ```
 
 #### See Also
@@ -1317,7 +1329,7 @@ A typical usage pattern is:
 
 ```js
 // Get file history versions
-var hist = await file.history()
+var hist = await file.history();
 
 // Suppose the history version list is:
 // [
@@ -1325,13 +1337,13 @@ var hist = await file.history()
 //   { num: 43, contentLen: 456, createdAt: 1540376683 }
 // ]
 // then we can choose version 42 to read from
-var versionReader = await file.versionReader(42)
+var versionReader = await file.versionReader(42);
 
 // Read all content of this version
-var content = await versionReader.readAll()
+var content = await versionReader.readAll();
 
 // Close the version reader
-await versionReader.close()
+await versionReader.close();
 ```
 
 ### close
@@ -1343,7 +1355,7 @@ Close an opened version reader.
 #### Example
 
 ```js
-versionReader.close()
+versionReader.close();
 ```
 
 ### read
@@ -1375,15 +1387,15 @@ example, `versionReader.read(buf.slice())`.
 #### Example
 
 ```js
-var buf = new Uint8Array(3)
-var output = await versionReader.read(buf) // buf is not usable after this call!
+var buf = new Uint8Array(3);
+var output = await versionReader.read(buf); // buf is not usable after this call!
 
-var buf = new Uint8Array(3)
-buf = await versionReader.read(buf)  // This is OK, buf will contain bytes read
+var buf = new Uint8Array(3);
+buf = await versionReader.read(buf);  // This is OK, buf will contain bytes read
 
 // Or if you want buf to be unmodified, copy it before use
-var buf = new Uint8Array(3)
-var output = await versionReader.read(buf.slice())
+var buf = new Uint8Array(3);
+var output = await versionReader.read(buf.slice());
 ```
 
 #### See Also
@@ -1399,7 +1411,7 @@ Read all bytes until end of the reader, placing them into the returned buffer.
 #### Example
 
 ```js
-var buf = await versionReader.readAll()
+var buf = await versionReader.readAll();
 ```
 
 #### See Also
@@ -1415,7 +1427,7 @@ Read all bytes as a string until end of the reader.
 #### Example
 
 ```js
-var str = await versionReader.readAllString()
+var str = await versionReader.readAllString();
 ```
 
 #### See Also
@@ -1442,9 +1454,9 @@ content. But be careful don't seek before byte 0.
 #### Example
 
 ```js
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.Start, offset: 42 })
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.Current, offset: 42 })
-var pos = await versionReader.seek({ from: Zbox.SeekFrom.End, offset: -42 })
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.Start, offset: 42 });
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.Current, offset: 42 });
+var pos = await versionReader.seek({ from: Zbox.SeekFrom.End, offset: -42 });
 ```
 
 #### See Also
