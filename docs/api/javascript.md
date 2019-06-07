@@ -101,7 +101,7 @@ A typical usage pattern is:
 var zbox = new Zbox();
 
 // initialise environment
-await zbox.initEnv({ debug: true });
+await zbox.initEnv({ logLevel: 'debug' });
 
 // create or open a repo
 var repo = await zbox.openRepo({
@@ -139,12 +139,24 @@ Initialise ZboxFS environment.
 
 This method should be called once before any other methods provided by Zbox.
 
-`options` can have `debug: true` to turn on debug logging in console output.
+The `options` is:
+
+```js
+{
+  logLevel?: string     // log level
+}
+```
+
+- `logLevel`
+
+  Set log output level, can be any of `trace`, `debug`, `info`, `warn`, `error`.
+  Set to `off` to disable log. Default is `warn`.
 
 #### Example
 
 ```js
-await zbox.initEnv({ debug: true });
+await zbox.initEnv({ logLevel: 'debug' });
+await zbox.initEnv({ logLevel: 'off' });
 ```
 
 ### version

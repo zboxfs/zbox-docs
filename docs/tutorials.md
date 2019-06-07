@@ -8,4 +8,4 @@ Before using this tutorials, make sure you have already got basic ideas about
 Zbox by reading through [Introduction](/) and
 [Getting Started](/getting-started.md).
 
-[Tutorials on GitHub](https://github.com/zboxfs/zbox-tutorials)
+[Check tutorials on GitHub](https://github.com/zboxfs/zbox-tutorials)

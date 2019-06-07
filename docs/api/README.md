@@ -5,8 +5,8 @@ inside your application to store files securely and privately.
 
 This API currently consists of 2 language bindings:
 
-- [Javascript](javascript)
-- [Rust](rust)
+- [Javascript](javascript.md)
+- [Rust](rust.md)
 
 To learn how to use this API, please visit [Getting Started](../getting-started)
 and [Tutorials](../tutorials).

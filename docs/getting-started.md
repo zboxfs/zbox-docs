@@ -10,15 +10,15 @@ the steps below to install Zbox.
 Simply download and include with a script tag. `Zbox` class will be globally
 available.
 
-1. Download `zbox-browser-0.1.2.tar.gz` from the [latest release]
+1. Download `zbox-browser-0.2.0.tar.gz` from the [latest release]
 
-2. Extract and copy the whole `zbox-browser-0.1.2` folder to your website's
+2. Extract and copy the whole `zbox-browser-0.2.0` folder to your website's
    `static` or `public` folder
 
    The folder should like below:
 
    ```sh
-    zbox-browser-0.1.2
+    zbox-browser-0.2.0
     ├── 1.worker.js
     ├── 1.worker.js.map
     ├── 39fe4d07f367480d98de.module.wasm
@@ -32,7 +32,7 @@ available.
 3. Import using `<script>` tag
 
   ```html
-  <script src="zbox-browser-0.1.2/index.js"></script>
+  <script src="zbox-browser-0.2.0/index.js"></script>
   ```
 
 :::warning Same origin
@@ -59,7 +59,7 @@ Install Zbox via [Cargo] by adding the following dependency to your project
 
 ```toml
 [dependencies]
-zbox = { version = "0.8.1", features = ["storage-zbox-native"] }
+zbox = { version = "0.8.2", features = ["storage-zbox-native"] }
 ```
 
 Zbox depends on [libsodium]. If you don't want to install it by yourself,
@@ -68,7 +68,7 @@ automatically download, verify and build libsodium.
 
 ```toml
 [dependencies]
-zbox = { version = "0.8.1", features = ["storage-zbox-native", "libsodium-bundled"] }
+zbox = { version = "0.8.2", features = ["storage-zbox-native", "libsodium-bundled"] }
 ```
 
 ## Create a Repo
@@ -123,7 +123,7 @@ Now let's create our first app.
    app.listen(port, () => console.log(`My Zbox app listening on port ${port}!`));
    ```
 
-3. Download [zbox-browser-0.1.2.tar.gz] and extract it to `zbox-app` folder.
+3. Download [zbox-browser-0.2.0.tar.gz] and extract it to `zbox-app` folder.
 
 4. Create another file `index.html` in the same folder, replace `[your_repo_uri]`
    with your repo's URI.
@@ -133,7 +133,7 @@ Now let's create our first app.
      <head>
        <title>My First Zbox App</title>
        <meta charset="utf-8"/>
-       <script src="zbox-browser-0.1.2/index.js"></script>
+       <script src="zbox-browser-0.2.0/index.js"></script>
        <script>
          (async () => {
            // create a Zbox instance
@@ -174,7 +174,7 @@ Now let's create our first app.
    If you can see logs like below, you're all done.
 
    ```
-   ZboxFS 0.8.1 - Zero-details, privacy-focused in-app file system
+   ZboxFS 0.8.2 - Zero-details, privacy-focused in-app file system
    ...[logs omitted]
    ZboxFS exited
    ```
@@ -240,7 +240,7 @@ That's it, now you have a private Zbox file system running in Node.js!
 
    ```toml
    [dependencies]
-   zbox = { version = "0.8.1", features = ["storage-zbox-native", "libsodium-bundled"] }
+   zbox = { version = "0.8.2", features = ["storage-zbox-native", "libsodium-bundled"] }
    ```
 
 3. Write `src/main.rs` with code below and replace `[your_repo_uri]` with
@@ -287,7 +287,7 @@ If you have any issues, please raise it on our GitHub repos:
 [Cargo]: https://crates.io
 [libsodium]: https://libsodium.org
 [try.zbox.io]: https://try.zbox.io
-[zbox-browser-0.1.2.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
+[zbox-browser-0.2.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
 [latest release]: https://github.com/zboxfs/zbox-browser/releases/latest
 [Personal access tokens]: https://github.com/
 [same-origin policy]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
