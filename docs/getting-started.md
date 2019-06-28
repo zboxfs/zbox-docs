@@ -74,7 +74,7 @@ zbox = { version = "0.8.2", features = ["storage-zbox-native", "libsodium-bundle
 ## Create a Repo
 
 Before start using Zbox, you need to create a repo on [zbox.io](https://zbox.io).
-If you don't want to sign up, create a test repo on [try.zbox.io], which will be
+If you don't want to sign up, create a test repo on [zbox.io/try], which will be
 valid for 48 hours.
 
 After create repo, you will get an [URI](/api/#uri) which is an unique URL-like
@@ -286,7 +286,7 @@ If you have any issues, please raise it on our GitHub repos:
 [npm]: https://www.npmjs.com
 [Cargo]: https://crates.io
 [libsodium]: https://libsodium.org
-[try.zbox.io]: https://try.zbox.io
+[zbox.io/try]: https://zbox.io/try
 [zbox-browser-0.2.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
 [latest release]: https://github.com/zboxfs/zbox-browser/releases/latest
 [Personal access tokens]: https://github.com/
