@@ -1,6 +1,6 @@
 module.exports = {
   title: 'Zbox Docs',
-  description: 'Zbox documentation',
+  description: 'Intro guide, tutorials and API reference documentation for Zbox',
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
@@ -10,7 +10,7 @@ module.exports = {
     [
       '@vuepress/google-analytics',
       {
-        'ga': '' // UA-00000000-0
+        'ga': 'UA-97176621-1'
       }
     ]
   ],

@@ -2,8 +2,8 @@
 
 ## Installation
 
-Zbox supports different programming languages, choose your favourite and follow
-the steps below to install Zbox.
+Zbox supports a variety of programming languages, choose your favourite and
+follow the steps below to install Zbox.
 
 ### Browser
 

@@ -1,19 +1,19 @@
 {
   "name": "zbox-docs",
   "version": "0.1.0",
-  "description": "ZboxFS documents",
+  "description": "Intro guide, tutorials and API reference documentation for Zbox",
   "main": "index.js",
   "scripts": {
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
-  "author": "Zbox Support <support@zbox.io>",
+  "author": "Zbox.io",
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
-    "@vuepress/plugin-active-header-links": "^1.0.0-alpha.47",
-    "@vuepress/plugin-back-to-top": "^1.0.0-alpha.47",
-    "@vuepress/plugin-google-analytics": "^1.0.0-alpha.47",
-    "vuepress": "^1.0.0-alpha.47"
+    "@vuepress/plugin-active-header-links": "^1.0.2",
+    "@vuepress/plugin-back-to-top": "^1.0.2",
+    "@vuepress/plugin-google-analytics": "^1.0.2",
+    "vuepress": "^1.0.2"
   }
 }
