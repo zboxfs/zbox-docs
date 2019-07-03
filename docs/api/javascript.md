@@ -110,7 +110,7 @@ var repo = await zbox.openRepo({
   opts: { create: true }
 });
 
-// do your works here, for example, create a file
+// do your own work here, for example, create a file
 var file = await repo.createFile('/foo.txt');
 
 // close file and repo
@@ -208,16 +208,14 @@ The `opts` options are:
 - `opsLimit`
 
   Sets the password hash operation limit, one value of
-  [OpsLimit](#enum-opslimit). This option is only used when creating repo.
-
-  This option is not available in browser.
+  [OpsLimit](#enum-opslimit). This option is only used when creating repo. This
+  option is not available in browser.
 
 - `memLimit`
 
   Sets the password hash memory limit, one value of [MemLimit](#enum-memlimit).
-  This option is only used when creating repo.
-
-  This option is not available in browser.
+  This option is only used when creating repo. This option is not available in
+  browser.
 
 - `cipher`
 
@@ -276,15 +274,15 @@ The `opts` options are:
 When opening a repo, the three crypto options `opsLimit`, `memLimit` and
 `cipher` must be exactly same as the specified values when creating the repo.
 
-Due to WebAssembly restriction, those 3 options are not available in browser.
-Instead, they are defaulted to below values:
+Due to WebAssembly restriction, those 3 options are not available in browser so
+they are defaulted to below values:
 
 - opsLmit: OpsLimit.Interactive
 - memLmit: MemLimit.Interactive
 - cipher: Cipher.Xchacha
 
-So if a repo is supposed to be used in browser, use above values when creating
-it.
+If your repo will be used across environments including browser, use above
+values when creating the repo.
 :::
 
 #### Example
@@ -362,7 +360,7 @@ await zbox.exit();
 
 ## Class: Repo
 
-`Repo` is an encrypted repository contains the whole file system.
+`Repo` is an encrypted repository contains the whole Zbox file system.
 
 A `Repo` represents a secure collection which consists of files, directories and
 their associated data. It provides POSIX-like methods to manipulate the enclosed
@@ -837,14 +835,14 @@ await repo.rename({
 
 ## Class: File
 
-`File` is a reference to an opened file in the repo.
+`File` is a reference to an opened file in repo.
 
 An instance of a `File` can be [read](#read) and/or [written](#write) depending
 on what options it was opened with. Files also implement [Seek](#enum-seekfrom)
 to alter the logical cursor that the file contains internally.
 
 A `File` instance can be obtained by [Repo.openFile](#openfile) or
-[Repo.createFile](#createfile) and  must be closed after use.
+[Repo.createFile](#createfile) and  must be [closed](#close-2) after use.
 
 #### Versioning
 
@@ -1054,7 +1052,7 @@ var str = await file.readAllString();
 
 Return a [stream.Readable] stream which can read file continuously.
 
-This method is for Node.js only.
+This method is for Node.js only, not available in browser.
 
 #### Example
 
@@ -1118,7 +1116,7 @@ var written = await file.write(buf.slice());
 // You can write string to file as well
 var written = await file.write('foo bar');
 
-// Don't forget to call finish() to make a version
+// Don't forget to call finish() to make a permanent version
 await file.finish();
 ```
 
@@ -1297,7 +1295,7 @@ var hist = await file.history();
 
 #### file.versionReader(version: number): Promise\<VersionReader>
 
-Get a [version reader](#class-versionreader) of the specified version.
+Get a [Version Reader](#class-versionreader) of the specified version of content.
 
 To get the version number, first call [history](#history-2) to get the list of
 all versions and then choose the version number from it.
