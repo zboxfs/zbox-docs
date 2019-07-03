@@ -31,6 +31,7 @@ module.exports = {
         path: '/api/',
         sidebarDepth: 2,
         children: [
+          '/api/',
           '/api/javascript',
           '/api/rust'
         ]

@@ -31,8 +31,9 @@ authenticated encryption primitives, see [AEAD encryption].
 ![Zbox Overview](../assets/zboxfs.svg)
 
 Zbox runs an virtual file system [ZboxFS] in the same memory space as your
-application. It encapsulates data in a secure repository (Repo) and provides
-file system API to application.
+application. It encapsulates data in a secure repository
+[Repo](/api/javascript.html#class-repo) and provides file system API to
+application.
 
 All data stored in the repo is encrypted using user-specified key Optionally,
 data can be de-duplicated and compressed. When saving a file to the repo, its

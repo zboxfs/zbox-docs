@@ -1,9 +1,9 @@
-# API Reference
+# API Overview
 
-The Zbox API is the programming interface to interact with [ZboxFS], which runs
-inside your application to store files securely and privately.
+The Zbox API is the programming interface to interact with [ZboxFS], which is a
+encrypted virtual file system runs within application.
 
-This API currently consists of 2 language bindings:
+This API currently has of 2 language bindings:
 
 - [Javascript](javascript.md)
 - [Rust](rust.md)
@@ -29,15 +29,15 @@ is **not** the key to encrypt/decrypt repo, but still need to be kept safe.
 `repo_id` is an unique 14-character string identifier of a `Repo`.
 
 :::tip How to get URI
-To get an URI, first sign up at [zbox.io](https://zbox.io) and create a repo.
-Then goto the repo details page and copy its URI.
+To get an URI, first sign up at [zbox.io](https://console.zbox.io/signup) and
+create a repo. Then goto the repo details page and copy its URI.
 
-If you just want to have quick try, go to [try.zbox.io](https://try.zbox.io)
-and create a temporary test repo, which will be valid for 48 hours.
+If you don't want sign up for now, you can create a temporary test repo on
+[zbox.io/try](https://zbox.io/try), it will be valid to use for 48 hours.
 :::
 
-URI can also include a list of options as below, which may have different
-values depends on underlying storage.
+URI can include a list of local cache configuration options, which may have
+different values depends on underlying storage.
 
 - `cache_type`
 
@@ -45,7 +45,7 @@ values depends on underlying storage.
 
   1. `mem`: Memory based local cache. This is the default value.
   2. `file`: OS file based local cache. Must also set `base` directory (see
-      below) when this is specified. Not available in browser.
+      below) when this is specified. This is not available in browser.
   3. `browser`: [IndexedDB] based local cache. Only available in browser.
 
 - `cache_size`
@@ -60,22 +60,22 @@ values depends on underlying storage.
 Some URI Examples:
 
 ```js
-// URI with 1MB memory based local cache
+// 1MB memory based local cache
 'zbox://access_key@repo_id'
 
-// URI with 3MB memory based local cache
+// 3MB memory based local cache
 'zbox://access_key@repo_id?cache_type=mem&cache_size=3mb'
 
-// URI with 1MB file based local cache at './local_cache' directory
+// 1MB file based local cache at './local_cache' directory
 'zbox://access_key@repo_id?cache_type=file&base=./local_cache'
 
-// URI with 3MB file based local cache at './local_cache' directory
+// 3MB file based local cache at './local_cache' directory
 'zbox://access_key@repo_id?cache_type=file&cache_size=3mb&base=./local_cache'
 
-// URI with 1MB browser based local cache, only valid in browser
+// 1MB browser based local cache, only valid in browser
 'zbox://access_key@repo_id?cache_type=browser'
 
-// URI with 3MB browser based local cache, only valid in browser
+// 3MB browser based local cache, only valid in browser
 'zbox://access_key@repo_id?cache_type=browser&cache_size=3mb'
 ```
 

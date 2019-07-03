@@ -15,7 +15,7 @@ available.
 2. Extract and copy the whole `zbox-browser-0.2.0` folder to your website's
    `static` or `public` folder
 
-   The folder should like below:
+   The folder structure should like below:
 
    ```sh
     zbox-browser-0.2.0
@@ -29,10 +29,10 @@ available.
     └── worker.js.map
    ```
 
-3. Import using `<script>` tag
+3. Import using `<script>` tag. For example,
 
   ```html
-  <script src="zbox-browser-0.2.0/index.js"></script>
+  <script src="/static/zbox-browser-0.2.0/index.js"></script>
   ```
 
 :::warning Same origin
@@ -74,13 +74,13 @@ zbox = { version = "0.8.2", features = ["storage-zbox-native", "libsodium-bundle
 ## Create a Repo
 
 Before start using Zbox, you need to create a repo on [zbox.io](https://zbox.io).
-If you don't want to sign up, create a test repo on [zbox.io/try], which will be
-valid for 48 hours.
+Alternatively, you can create a test repo on [zbox.io/try] without sign up, it
+will be valid to use for 48 hours.
 
-After create repo, you will get an [URI](/api/#uri) which is an unique URL-like
-identifier of a repo. For example,
+After repo is created, you will get an [URI](/api/#uri) which is an unique
+URL-like identifier of a repo. For example,
 
-```
+```rust
 zbox://d9Ysc4PJa5sT7NKJyxDjMpZg@jRpbY2DEra6qMR
 ```
 
@@ -88,16 +88,16 @@ Here `d9Ysc4PJa5sT7NKJyxDjMpZg` is the access key and `jRpbY2DEra6qMR` is the
 repo ID.
 
 :::warning Keep access key safe
-The repo access key cannot decrypt your repo's data, it is only used for API
-access authtication. But anyone who obtained the access key can potentially
-delete your repo, so you still need to keep it safe.
+The access key cannot decrypt your repo, it is only used for API access
+authtication. But anyone who obtained the access key can potentially delete
+repo, so you still need to keep it safe.
 :::
 
 ## Start Using Zbox
 
 Using Zbox is simple and straightforward. First make sure you have read through
-[installation steps](#installation) above, and [created a repo](#create-a-repo)
-on zbox.io.
+[installation guides](#installation) above, and [created a repo](#create-a-repo)
+on [zbox.io].
 
 Now let's create our first app.
 
@@ -112,7 +112,7 @@ Now let's create our first app.
    npm install express --save
    ```
 
-2. Then create `app.js` file in `zbox-app` folder:
+2. Then create a `app.js` file in `zbox-app` folder:
 
    ```js
    const express = require('express');
@@ -125,7 +125,7 @@ Now let's create our first app.
 
 3. Download [zbox-browser-0.2.0.tar.gz] and extract it to `zbox-app` folder.
 
-4. Create another file `index.html` in the same folder, replace `[your_repo_uri]`
+4. Create a HTML file `index.html` in the same folder, replace `[your_repo_uri]`
    with your repo's URI.
 
    ```html
@@ -139,8 +139,8 @@ Now let's create our first app.
            // create a Zbox instance
            const zbox = new Zbox();
 
-           // initialise Zbox environment and turn on debug logs
-           await zbox.initEnv({ debug: true });
+           // initialise Zbox environment and enable debug logs
+           await zbox.initEnv({ logLevel: 'debug' });
 
            // open the repo
            var repo = await zbox.openRepo({
@@ -204,7 +204,7 @@ That's it, now you have a private Zbox file system running in browser!
      const zbox = new Zbox();
 
      // initialise Zbox environment and turn on debug logs
-     await zbox.initEnv({ debug: true });
+     await zbox.initEnv({ logLevel: 'debug' });
 
      // open the repo
      var repo = await zbox.openRepo({
@@ -263,7 +263,7 @@ That's it, now you have a private Zbox file system running in Node.js!
    }
    ```
 
-4. Turn on debug logs and run the app:
+4. Enable debug logs and run the app:
 
    ```sh
    export RUST_LOG=zbox=debug
@@ -274,8 +274,8 @@ That's it, now you have a private Zbox file system running in Rust!
 
 ## What's Next
 
-Next, you can check out more on [tutorials](/tutorials/) or
-[API reference](/api/).
+Next, you can check out more examples on the [tutorials](/tutorials/) or look up
+in [API reference](/api/).
 
 If you have any issues, please raise it on our GitHub repos:
 
