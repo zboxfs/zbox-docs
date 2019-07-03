@@ -6,7 +6,7 @@ to run its examples.
 
 Before using this tutorials, make sure you have already got basic ideas about
 Zbox by reading through [Introduction](/) and
-[Getting Started Guide](/getting-started.md).
+[Getting Started](/getting-started.md).
 
 Now, you can check
 [Zbox tutorials on GitHub](https://github.com/zboxfs/zbox-tutorials).
