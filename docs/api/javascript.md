@@ -189,6 +189,12 @@ await zbox.exists('zbox://access_key@repo_id');
 
 Opens a [Repo] at [URI] with the password and specified options.
 
+Once repo is opened, a 5-minute exclusive lock will be in effect. This lock
+will be automatically extended if there are any operations on the repo. If app
+is terminated without closing repo, this lock will still apply until it is
+expired. To manually release that lock, go to the repo detail page in Zbox
+console and click 'Kill Session' button.
+
 The `opts` options are:
 
 ```ts
