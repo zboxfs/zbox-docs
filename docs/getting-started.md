@@ -10,15 +10,15 @@ follow the steps below to install Zbox.
 Simply download and include with a script tag. `Zbox` class will be globally
 available.
 
-1. Download `zbox-browser-0.2.0.tar.gz` from the [latest release]
+1. Download `zbox-browser-0.3.0.tar.gz` from the [latest release]
 
-2. Extract and copy the whole `zbox-browser-0.2.0` folder to your website's
-   `static` or `public` folder
+2. Extract and copy the whole `zbox-browser-0.3.0` folder to your website's
+   `static` or `public` folder, and change its name to `zbox-browser`
 
 3. Import using `<script>` tag. For example,
 
   ```html
-  <script src="/zbox-browser-0.2.0/index.js" async defer></script>
+  <script src="/zbox-browser/index.js" async defer></script>
   ```
 
 :::warning Same origin
@@ -103,13 +103,14 @@ Now let's create our first app.
    ```js
    const express = require('express');
    const app = express();
-   const port = 3000;
+   const port = 3333;
 
    app.use(express.static(__dirname + '/'));
    app.listen(port, () => console.log(`My Zbox app listening on port ${port}!`));
    ```
 
-3. Download [zbox-browser-0.2.0.tar.gz] and extract it to `zbox-app` folder.
+3. Download [zbox-browser-0.3.0.tar.gz] from GitHub, extract it to `zbox-app`
+   folder and rename to `zbox-browser`.
 
 4. Create a HTML file `index.html` in the same folder, replace `[your_repo_uri]`
    with your repo's URI.
@@ -119,14 +120,14 @@ Now let's create our first app.
      <head>
        <title>My First Zbox App</title>
        <meta charset="utf-8"/>
-       <script src="zbox-browser-0.2.0/index.js"></script>
+       <script src="zbox-browser/index.js"></script>
        <script>
          (async () => {
            // create a Zbox instance
            const zbox = new Zbox();
 
            // initialise Zbox environment and enable debug logs
-           await zbox.initEnv({ logLevel: 'debug' });
+           await zbox.initEnv({ log: { level: 'debug' } });
 
            // open the repo
            var repo = await zbox.openRepo({
@@ -154,7 +155,7 @@ Now let's create our first app.
    node app.js
    ```
 
-6. Open http://localhost:3000/ in browser, remember to open developer tools to
+6. Open http://localhost:3333/ in browser, remember to open developer tools to
    watch the logs.
 
    If you can see logs like below, you're all done.
@@ -190,7 +191,7 @@ That's it, now you have a private Zbox file system running in browser!
      const zbox = new Zbox();
 
      // initialise Zbox environment and turn on debug logs
-     await zbox.initEnv({ logLevel: 'debug' });
+     await zbox.initEnv({ log: { level: 'debug' } });
 
      // open the repo
      var repo = await zbox.openRepo({
@@ -272,8 +273,9 @@ If you have any issues, please raise it on our GitHub repos:
 [npm]: https://www.npmjs.com
 [Cargo]: https://crates.io
 [libsodium]: https://libsodium.org
+[zbox.io]: https://zbox.io
 [zbox.io/try]: https://zbox.io/try
-[zbox-browser-0.2.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
+[zbox-browser-0.3.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
 [latest release]: https://github.com/zboxfs/zbox-browser/releases/latest
 [Personal access tokens]: https://github.com/
 [same-origin policy]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy

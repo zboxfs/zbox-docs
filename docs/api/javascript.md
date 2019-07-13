@@ -101,7 +101,7 @@ A typical usage pattern is:
 var zbox = new Zbox();
 
 // initialise environment
-await zbox.initEnv({ logLevel: 'debug' });
+await zbox.initEnv({ log: { level: 'debug' } });
 
 // create or open a repo
 var repo = await zbox.openRepo({
@@ -143,20 +143,36 @@ The `options` is:
 
 ```js
 {
-  logLevel?: string     // log level
+  log: {
+    level?: string,     // log level
+    logger?: function   // custom log function, for browser only
+  }
 }
 ```
 
-- `logLevel`
+- `log.level`
 
   Set log output level, can be any of `trace`, `debug`, `info`, `warn`, `error`.
   Set to `off` to disable log. Default is `warn`.
 
+- `log.logger`
+
+  Custom logger function, for browser only. Default is using `console.log`. Its
+  signature is:
+
+  ```js
+  function logger(level: string, msg: string, from?: string) {}
+  ```
+
+  - `level`: log output level, same as `log.level` above
+  - `msg`: log message
+  - `from`: file name and line number in which log message sourced from
+
 #### Example
 
 ```js
-await zbox.initEnv({ logLevel: 'debug' });
-await zbox.initEnv({ logLevel: 'off' });
+await zbox.initEnv({ log: { level: 'debug' } });
+await zbox.initEnv({ log: { level: 'off' } });
 ```
 
 ### version
