@@ -1626,8 +1626,8 @@ Enumerations:
 [URI]: #uri
 [Repo]: #class-repo
 [File]: #class-file
-[Zbox.io]: https://zbox.io
-[ZboxFS]: https://zbox.io/fs
+[Zbox.io]: https://zbox.io/
+[ZboxFS]: https://zbox.io/fs/
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 [transferable object]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#Passing_data_by_transferring_ownership_(transferable_objects)

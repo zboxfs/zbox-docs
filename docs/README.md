@@ -84,13 +84,23 @@ provides an encrypted virtual file system. **Zbox Cloud Storage** sits in the
 remote, it is located globally and powered by CDN. Application data is encrypted
 by ZboxFS locally before saved to Zbox Cloud Storage.
 
-### What does 'zero-details' mean?
+### What does 'Zero-details' mean?
 
-In a nutshell, `Zero-details` means that storages know nothing about the data
-you store on it, except its total size. Not only file contents, but also file
-sizes, metadata and directory structure are all kept confidential. In Zbox, this
-is achieved by using advanced cryptography and packing data into same-sized
-blocks.
+In a nutshell, `Zero-details` means that storage knows nothing about the
+**content of your data**. Not only file contents, but also file sizes, metadata
+and directory structure are all kept confidential. In Zbox, this is achieved by
+using advanced cryptography and packing data into same-sized blocks.
+
+Please note that `Zero-details` doesn't mean storage knows NOTHING about your
+data, which usually claimed by `Zero-knowledge` or `No-knowledge` storage
+provider. Zbox Cloud Storage knows some information but it is very limited and
+no data content is exposed. Those information includes:
+
+- When the repo has been accessed
+- Accessed by which user account (email address) and IP address
+- Which block (randomised block id) has been read or written
+- Total size of the repo
+- Network traffic and total number of requests, including download and upload
 
 ### Why do I need to use Zbox?
 

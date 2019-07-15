@@ -33,7 +33,7 @@ To get an URI, first sign up at [zbox.io](https://console.zbox.io/signup) and
 create a repo. Then goto the repo details page and copy its URI.
 
 If you don't want sign up for now, you can create a temporary test repo on
-[zbox.io/try](https://zbox.io/try), it will be valid to use for 48 hours.
+[zbox.io/try](https://zbox.io/try/), it will be valid to use for 48 hours.
 :::
 
 URI can include a list of local cache configuration options, which may have
@@ -86,5 +86,5 @@ cache is fully loaded in browser's memory when repo is opened. Set it below 5MB
 for safe and always test different sizes.
 :::
 
-[ZboxFS]: https://zbox.io/fs
+[ZboxFS]: https://zbox.io/fs/
 [IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
