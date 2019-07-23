@@ -221,8 +221,8 @@ The `opts` options are:
   create?: boolean,       // default: false
   createNew?: boolean,    // default: false
   compress?: boolean,     // default: false
-  versionLimit?: number,  // default: 10
-  dedupChunk?: boolean,   // default: true
+  versionLimit?: number,  // default: 1
+  dedupChunk?: boolean,   // default: false
   readOnly?: boolean      // default: false
 }
 ```
@@ -274,7 +274,7 @@ The `opts` options are:
 
   Sets the default maximum number of file version.
 
-  The version_limit must be within [1, 255], default is 10. This setting is a
+  The version_limit must be within [1, 255], default is 1. This setting is a
   repo-wise setting, indivisual file can overwrite it by setting `versionLimit`
   in [repo.openFile](#openfile).
 
@@ -303,8 +303,8 @@ they are defaulted to below values:
 - memLmit: MemLimit.Interactive
 - cipher: Cipher.Xchacha
 
-If your repo will be used across environments including browser, use above
-values when creating the repo.
+If your repo is supposed to be used across multiple environments, such as
+browser, use above values when creating the repo.
 :::
 
 #### Example
@@ -871,7 +871,7 @@ A `File` instance can be obtained by [Repo.openFile](#openfile) or
 `File` contents support up to 255 revision versions. Version is immutable once
 it is created.
 
-By default, the maximum number of versions of a file is 10, which is
+By default, the maximum number of versions of a file is 1, which is
 configurable by `versionLimit` option on both [Repo](#openrepo) and
 [File](#openfile) level. File level option takes precedence.
 
