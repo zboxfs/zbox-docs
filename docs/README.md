@@ -57,8 +57,8 @@ to boost IO performance. It can use different storages too, such as memory,
   structure, no knowledge can be leaked to underlying storage
 - State-of-the-art cryptography: AES-256-GCM (hardware), XChaCha20-Poly1305,
   Argon2 password hashing and etc., powered by [libsodium]
-- Support multiple storages, including memory, OS file system, RDBMS, Key-value
-  object store and more
+- Support varieties of storages, including memory, OS file system, RDBMS,
+  Key-value object store and more
 - Files and directories are packed into same-sized blocks to eliminate metadata
   leakage
 - Content-based data chunk deduplication and file-based deduplication
