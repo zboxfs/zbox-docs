@@ -45,7 +45,7 @@ Install Zbox via [Cargo] by adding the following dependency to your project
 
 ```toml
 [dependencies]
-zbox = { version = "0.8.5", features = ["storage-zbox-native"] }
+zbox = { version = "0.8.6", features = ["storage-zbox-native"] }
 ```
 
 Zbox depends on [libsodium]. If you don't want to install it by yourself,
@@ -54,7 +54,7 @@ automatically download, verify and build libsodium.
 
 ```toml
 [dependencies]
-zbox = { version = "0.8.5", features = ["storage-zbox-native", "libsodium-bundled"] }
+zbox = { version = "0.8.6", features = ["storage-zbox-native", "libsodium-bundled"] }
 ```
 
 ## Create a Repo
@@ -161,7 +161,7 @@ Now let's create our first app.
    If you can see logs like below, you're all done.
 
    ```
-   ZboxFS 0.8.5 - Zero-details, privacy-focused in-app file system
+   ZboxFS 0.8.6 - Zero-details, privacy-focused in-app file system
    ...[logs omitted]
    ZboxFS exited
    ```
@@ -227,7 +227,7 @@ That's it, now you have a private Zbox file system running in Node.js!
 
    ```toml
    [dependencies]
-   zbox = { version = "0.8.5", features = ["storage-zbox-native", "libsodium-bundled"] }
+   zbox = { version = "0.8.6", features = ["storage-zbox-native", "libsodium-bundled"] }
    ```
 
 3. Write `src/main.rs` with code below and replace `[your_repo_uri]` with
