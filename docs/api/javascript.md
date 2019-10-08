@@ -1343,7 +1343,7 @@ var versionReader = await file.versionReader(42);
 
 ## Class: VersionReader
 
-A reader for a specific vesion of file content.
+A reader for a specific version of file content.
 
 This reader can be obtained by [File.versionReader](#versionreader) method and
 must be closed after use.
@@ -1351,7 +1351,7 @@ must be closed after use.
 A typical usage pattern is:
 
 1. Get file history versions using [File.history](#history-2)
-2. Get version reader for a sepcfic version number
+2. Get a version reader for a specific version number using
    [File.versionReader](#versionreader)
 3. Read content using [read](#read-2), [readAll](#readall-2) or
    [readAllString](#readallstring-2)
