@@ -10,9 +10,9 @@ follow the steps below to install Zbox.
 Simply download and include with a script tag. `Zbox` class will be globally
 available.
 
-1. Download `zbox-browser-0.3.0.tar.gz` from the [latest release]
+1. Download `zbox-browser-0.5.0.tar.gz` from the [latest release]
 
-2. Extract and copy the whole `zbox-browser-0.3.0` folder to your website's
+2. Extract and copy the whole `zbox-browser-0.5.0` folder to your website's
    `static` or `public` folder, and change its name to `zbox-browser`
 
 3. Import using `<script>` tag. For example,
@@ -109,7 +109,7 @@ Now let's create our first app.
    app.listen(port, () => console.log(`My Zbox app listening on port ${port}!`));
    ```
 
-3. Download [zbox-browser-0.3.0.tar.gz] from GitHub, extract it to `zbox-app`
+3. Download [zbox-browser-0.5.0.tar.gz] from GitHub, extract it to `zbox-app`
    folder and rename to `zbox-browser`.
 
 4. Create a HTML file `index.html` in the same folder, replace `[your_repo_uri]`
@@ -276,7 +276,7 @@ If you have any issues, please raise it on our GitHub repos:
 [libsodium]: https://libsodium.org
 [zbox.io]: https://zbox.io/
 [zbox.io/try]: https://zbox.io/try/
-[zbox-browser-0.3.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
+[zbox-browser-0.5.0.tar.gz]: https://github.com/zboxfs/zbox-browser/releases/latest
 [latest release]: https://github.com/zboxfs/zbox-browser/releases/latest
 [Personal access tokens]: https://github.com/
 [same-origin policy]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
