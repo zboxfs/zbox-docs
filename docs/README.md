@@ -67,8 +67,8 @@ to boost IO performance. It can use different storages too, such as memory,
 - [ACID] transactional operations
 - Easy-to-use POSIX-like file system API
 - Cross platforms, supports 64-bit Linux, MacOS and Windows
-- Multiple programming language bindings, C/C++, Rust, Browser and Node.js,
-  more are coming
+- Multiple programming language bindings, C/C++, Rust, Browser, Node.js and
+  Android, more are coming
 - Geo-distrubuted CDN-powered secure cloud storage
 - Built in [Rust] :hearts: with safety and performance
 

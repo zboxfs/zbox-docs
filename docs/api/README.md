@@ -3,10 +3,11 @@
 The Zbox API is the programming interface to interact with [ZboxFS], which is a
 encrypted virtual file system runs within application.
 
-This API currently has of 2 language bindings:
+This API currently has of 3 language bindings:
 
 - [Javascript](javascript.md)
 - [Rust](rust.md)
+- [Android Java](android.md)
 
 To learn how to use this API, please visit [Getting Started](../getting-started)
 and [Tutorials](../tutorials).

@@ -33,7 +33,8 @@ module.exports = {
         children: [
           '/api/',
           '/api/javascript',
-          '/api/rust'
+          '/api/rust',
+          '/api/android'
         ]
       }
     ]

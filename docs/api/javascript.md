@@ -223,7 +223,8 @@ The `opts` options are:
   compress?: boolean,     // default: false
   versionLimit?: number,  // default: 1
   dedupChunk?: boolean,   // default: false
-  readOnly?: boolean      // default: false
+  readOnly?: boolean,     // default: false
+  force?: boolean         // default: false
 }
 ```
 
@@ -291,6 +292,14 @@ The `opts` options are:
   Sets the option for read-only mode.
 
   This option cannot be true with either `create` or `createNew` is true.
+
+- `force`
+
+  Sets the option to open repo regardless repo lock.
+
+  Normally, repo will be exclusively locked once it is opened. But when this
+  option is set to true, the repo will be opened regardless the repo lock. This
+  option breaks exclusive access to repo, so use it cautiously.
 
 :::tip Notes on crypto options
 When opening a repo, the three crypto options `opsLimit`, `memLimit` and

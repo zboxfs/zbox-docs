@@ -269,6 +269,7 @@ If you have any issues, please raise it on our GitHub repos:
 - [ZboxFS](https://github.com/zboxfs/zbox)
 - [ZboxFS browser JavaScript binding](https://github.com/zboxfs/zbox-browser)
 - [ZboxFS Node.js binding](https://github.com/zboxfs/zbox-nodejs)
+- [ZboxFS Android Java binding](https://github.com/zboxfs/zbox-android)
 
 [npm]: https://www.npmjs.com
 [Cargo]: https://crates.io
